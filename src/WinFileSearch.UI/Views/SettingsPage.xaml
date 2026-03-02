@@ -1,0 +1,248 @@
+<Page x:Class="WinFileSearch.UI.Views.SettingsPage"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+      xmlns:converters="clr-namespace:WinFileSearch.UI.Converters"
+      mc:Ignorable="d" 
+      d:DesignHeight="600" d:DesignWidth="900"
+      Background="{StaticResource PrimaryBackgroundBrush}"
+      Title="Settings">
+
+    <Page.Resources>
+        <converters:FileSizeConverter x:Key="FileSizeConverter"/>
+        <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
+    </Page.Resources>
+
+    <ScrollViewer VerticalScrollBarVisibility="Auto">
+        <StackPanel Margin="20">
+            <!-- Header -->
+            <Grid Margin="0,0,0,24">
+                <TextBlock Text="Indexing Settings" 
+                           FontSize="22" 
+                           FontWeight="SemiBold"
+                           Foreground="{StaticResource PrimaryTextBrush}"/>
+            </Grid>
+
+            <!-- General Section -->
+            <TextBlock Text="GENERAL" 
+                       FontSize="11" 
+                       FontWeight="SemiBold"
+                       Foreground="{StaticResource SecondaryTextBrush}"
+                       Margin="0,0,0,12"/>
+
+            <!-- Background Indexing Toggle -->
+            <Border Style="{StaticResource CardPanelStyle}" Margin="0,0,0,12">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <StackPanel Grid.Column="0">
+                        <TextBlock Text="Background Indexing" 
+                                   FontSize="14" 
+                                   FontWeight="Medium"
+                                   Foreground="{StaticResource PrimaryTextBrush}"/>
+                        <TextBlock Text="Allow the app to update file records while minimized" 
+                                   FontSize="12"
+                                   Foreground="{StaticResource SecondaryTextBrush}"
+                                   Margin="0,4,0,0"/>
+                    </StackPanel>
+                    <CheckBox Grid.Column="1" 
+                              Style="{StaticResource ToggleSwitchStyle}"
+                              IsChecked="{Binding BackgroundIndexingEnabled}"
+                              VerticalAlignment="Center"/>
+                </Grid>
+            </Border>
+
+            <!-- Rebuild Index -->
+            <Border Style="{StaticResource CardPanelStyle}" Margin="0,0,0,24">
+                <StackPanel>
+                    <TextBlock Text="Rebuild Index" 
+                               FontSize="14" 
+                               FontWeight="Medium"
+                               Foreground="{StaticResource PrimaryTextBrush}"/>
+                    <TextBlock Text="Clear current database and start a fresh scan of all folders" 
+                               FontSize="12"
+                               Foreground="{StaticResource SecondaryTextBrush}"
+                               Margin="0,4,0,12"/>
+                    
+                    <!-- Progress Bar (visible during indexing) -->
+                    <ProgressBar Style="{StaticResource IndexingProgressBarStyle}"
+                                 Value="{Binding IndexingProgress}"
+                                 Maximum="100"
+                                 Margin="0,0,0,8"
+                                 Visibility="{Binding IsIndexing, Converter={StaticResource BoolToVisibilityConverter}}"/>
+                    
+                    <TextBlock Text="{Binding IndexingStatus}"
+                               FontSize="12"
+                               Foreground="{StaticResource SecondaryTextBrush}"
+                               Margin="0,0,0,12"
+                               Visibility="{Binding IsIndexing, Converter={StaticResource BoolToVisibilityConverter}}"/>
+
+                    <Button Command="{Binding RebuildIndexCommand}">
+                        <Button.Style>
+                            <Style TargetType="Button" BasedOn="{StaticResource PrimaryButtonStyle}">
+                                <Setter Property="Content" Value="Rebuild Database Now"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsIndexing}" Value="True">
+                                        <Setter Property="Content" Value="Cancel Rebuild"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Button.Style>
+                    </Button>
+                </StackPanel>
+            </Border>
+
+            <!-- Included Folders Section -->
+            <Grid Margin="0,0,0,12">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <TextBlock Grid.Column="0"
+                           Text="INCLUDED FOLDERS" 
+                           FontSize="11" 
+                           FontWeight="SemiBold"
+                           Foreground="{StaticResource SecondaryTextBrush}"
+                           VerticalAlignment="Center"/>
+                <Button Grid.Column="1"
+                        Content="⊕ Add Folder"
+                        Style="{StaticResource SecondaryButtonStyle}"
+                        Command="{Binding AddFolderCommand}"/>
+            </Grid>
+
+            <ItemsControl ItemsSource="{Binding IncludedFolders}" Margin="0,0,0,24">
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <Border Style="{StaticResource CardPanelStyle}" Margin="0,0,0,8">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+
+                                <!-- Folder Icon -->
+                                <Path Grid.Column="0"
+                                      Data="M10,4H4C2.89,4 2,4.89 2,6V18A2,2 0 0,0 4,20H20A2,2 0 0,0 22,18V8C22,6.89 21.1,6 20,6H12L10,4Z"
+                                      Fill="{StaticResource FolderIconBrush}"
+                                      Width="24" Height="24"
+                                      Stretch="Uniform"
+                                      Margin="0,0,12,0"/>
+
+                                <!-- Folder Info -->
+                                <StackPanel Grid.Column="1">
+                                    <TextBlock Text="{Binding Path}"
+                                               FontSize="14"
+                                               Foreground="{StaticResource PrimaryTextBrush}"/>
+                                    <StackPanel Orientation="Horizontal" Margin="0,4,0,0">
+                                        <TextBlock FontSize="12" Foreground="{StaticResource SecondaryTextBrush}">
+                                            <Run Text="{Binding FileCount, StringFormat='{}{0:N0} files'}"/>
+                                            <Run Text=" • "/>
+                                            <Run Text="{Binding TotalSize, Converter={StaticResource FileSizeConverter}}"/>
+                                        </TextBlock>
+                                    </StackPanel>
+                                </StackPanel>
+
+                                <!-- Remove Button -->
+                                <Button Grid.Column="2"
+                                        Content="⊖"
+                                        FontSize="18"
+                                        Background="Transparent"
+                                        Foreground="{StaticResource SecondaryTextBrush}"
+                                        BorderThickness="0"
+                                        Cursor="Hand"
+                                        Command="{Binding DataContext.RemoveFolderCommand, RelativeSource={RelativeSource AncestorType=Page}}"
+                                        CommandParameter="{Binding}"/>
+                            </Grid>
+                        </Border>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+
+            <!-- Excluded Folders Section -->
+            <Grid Margin="0,0,0,12">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <TextBlock Grid.Column="0"
+                           Text="EXCLUDED FOLDERS" 
+                           FontSize="11" 
+                           FontWeight="SemiBold"
+                           Foreground="{StaticResource SecondaryTextBrush}"
+                           VerticalAlignment="Center"/>
+                <Button Grid.Column="1"
+                        Content="⊕ Add Exclusion"
+                        Style="{StaticResource SecondaryButtonStyle}"
+                        Command="{Binding AddExclusionCommand}"/>
+            </Grid>
+
+            <ItemsControl ItemsSource="{Binding ExcludedFolders}" Margin="0,0,0,24">
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <Border Style="{StaticResource CardPanelStyle}" Margin="0,0,0,8">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+
+                                <!-- Excluded Folder Icon -->
+                                <Path Grid.Column="0"
+                                      Data="M10,4H4C2.89,4 2,4.89 2,6V18A2,2 0 0,0 4,20H20A2,2 0 0,0 22,18V8C22,6.89 21.1,6 20,6H12L10,4Z"
+                                      Fill="{StaticResource SecondaryTextBrush}"
+                                      Width="24" Height="24"
+                                      Stretch="Uniform"
+                                      Margin="0,0,12,0"
+                                      Opacity="0.5"/>
+
+                                <!-- Folder Info -->
+                                <StackPanel Grid.Column="1">
+                                    <TextBlock Text="{Binding Path}"
+                                               FontSize="14"
+                                               Foreground="{StaticResource PrimaryTextBrush}"/>
+                                    <TextBlock Text="Excluded from indexing"
+                                               FontSize="12"
+                                               Foreground="{StaticResource SecondaryTextBrush}"
+                                               Margin="0,4,0,0"/>
+                                </StackPanel>
+
+                                <!-- Remove Button -->
+                                <Button Grid.Column="2"
+                                        Content="⊖"
+                                        FontSize="18"
+                                        Background="Transparent"
+                                        Foreground="{StaticResource SecondaryTextBrush}"
+                                        BorderThickness="0"
+                                        Cursor="Hand"
+                                        Command="{Binding DataContext.RemoveExclusionCommand, RelativeSource={RelativeSource AncestorType=Page}}"
+                                        CommandParameter="{Binding}"/>
+                            </Grid>
+                        </Border>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+
+            <!-- Stats -->
+            <StackPanel HorizontalAlignment="Center" Margin="0,20,0,0">
+                <TextBlock HorizontalAlignment="Center"
+                           FontSize="12"
+                           Foreground="{StaticResource SecondaryTextBrush}">
+                    <Run Text="Last indexed: "/>
+                    <Run Text="{Binding LastIndexed, StringFormat='MMM d, yyyy h:mm tt', TargetNullValue='Never'}"/>
+                </TextBlock>
+                <TextBlock HorizontalAlignment="Center"
+                           FontSize="12"
+                           Foreground="{StaticResource SecondaryTextBrush}"
+                           Margin="0,4,0,0">
+                    <Run Text="Total files indexed: "/>
+                    <Run Text="{Binding TotalFilesIndexed, StringFormat='{}{0:N0}'}"/>
+                </TextBlock>
+            </StackPanel>
+        </StackPanel>
+    </ScrollViewer>
+</Page>

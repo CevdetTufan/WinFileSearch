@@ -1,0 +1,7 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/WinFileSearch.Core/WinFileSearch.Core.csproj" />
+    <Project Path="src/WinFileSearch.Data/WinFileSearch.Data.csproj" />
+    <Project Path="src/WinFileSearch.UI/WinFileSearch.UI.csproj" />
+  </Folder>
+</Solution>
