@@ -3,6 +3,7 @@ using CommunityToolkit.Mvvm.Input;
 using System.Collections.ObjectModel;
 using WinFileSearch.Core.Services;
 using WinFileSearch.Data.Models;
+using WinFileSearch.UI.Services;
 
 namespace WinFileSearch.UI.ViewModels;
 
@@ -10,6 +11,7 @@ public partial class HomeViewModel : ObservableObject
 {
     private readonly IFileSearchService _searchService;
     private readonly IFileIndexService _indexService;
+    private readonly INavigationService _navigationService;
 
     [ObservableProperty]
     private string _searchQuery = string.Empty;
@@ -31,17 +33,28 @@ public partial class HomeViewModel : ObservableObject
 
     public ObservableCollection<FileEntry> RecentFiles { get; } = new();
 
-    public HomeViewModel(IFileSearchService searchService, IFileIndexService indexService)
+    public HomeViewModel(IFileSearchService searchService, IFileIndexService indexService, INavigationService navigationService)
     {
         _searchService = searchService;
         _indexService = indexService;
+        _navigationService = navigationService;
         _ = LoadRecentFilesAsync();
+    }
+
+    partial void OnSearchQueryChanged(string value)
+    {
+        // Navigate to search page when user starts typing
+        if (!string.IsNullOrEmpty(value) && value.Length >= 2)
+        {
+            _navigationService.NavigateToSearch(value);
+            SearchQuery = string.Empty; // Clear after navigation
+        }
     }
 
     public async Task LoadRecentFilesAsync()
     {
         var recentFiles = await _searchService.GetRecentFilesAsync(10);
-        
+
         RecentFiles.Clear();
         foreach (var file in recentFiles)
         {

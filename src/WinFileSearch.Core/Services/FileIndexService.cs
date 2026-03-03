@@ -202,18 +202,28 @@ public class FileIndexService : IFileIndexService
 
     public async Task RebuildIndexAsync(IProgress<IndexingProgress>? progress = null, CancellationToken cancellationToken = default)
     {
-        // Clear all data
-        await _dbContext.ClearAllDataAsync();
-        
-        // Get all included folders and re-index
-        var folders = await _repository.GetIncludedFoldersAsync();
-        
+        // Get all included folders BEFORE clearing
+        var folders = (await _repository.GetIncludedFoldersAsync()).ToList();
+
+        if (folders.Count == 0)
+        {
+            progress?.Report(new IndexingProgress { IsCompleted = true });
+            return;
+        }
+
+        // Clear files only, preserve folder list
+        await _dbContext.ClearFilesOnlyAsync();
+
+        // Re-index all folders
         foreach (var folder in folders)
         {
             if (cancellationToken.IsCancellationRequested)
                 return;
 
-            await IndexFolderAsync(folder.Path, progress, cancellationToken);
+            if (Directory.Exists(folder.Path))
+            {
+                await IndexFolderAsync(folder.Path, progress, cancellationToken);
+            }
         }
     }
 

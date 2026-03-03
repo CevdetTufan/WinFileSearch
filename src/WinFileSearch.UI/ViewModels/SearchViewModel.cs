@@ -1,14 +1,18 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using System.Collections.ObjectModel;
+using System.Timers;
 using WinFileSearch.Core.Services;
 using WinFileSearch.Data.Models;
+using Timer = System.Timers.Timer;
 
 namespace WinFileSearch.UI.ViewModels;
 
-public partial class SearchViewModel : ObservableObject
+public partial class SearchViewModel : ObservableObject, IDisposable
 {
     private readonly IFileSearchService _searchService;
+    private readonly Timer _debounceTimer;
+    private const int DebounceDelayMs = 300;
 
     [ObservableProperty]
     private string _searchQuery = string.Empty;
@@ -33,14 +37,31 @@ public partial class SearchViewModel : ObservableObject
     public SearchViewModel(IFileSearchService searchService)
     {
         _searchService = searchService;
+
+        // Initialize debounce timer
+        _debounceTimer = new Timer(DebounceDelayMs);
+        _debounceTimer.AutoReset = false;
+        _debounceTimer.Elapsed += OnDebounceTimerElapsed;
+    }
+
+    private void OnDebounceTimerElapsed(object? sender, ElapsedEventArgs e)
+    {
+        // Execute search on UI thread
+        System.Windows.Application.Current?.Dispatcher.Invoke(async () =>
+        {
+            await ExecuteSearchAsync();
+        });
     }
 
     partial void OnSearchQueryChanged(string value)
     {
-        // Auto-search when query changes (with debounce ideally)
+        // Reset and start debounce timer
+        _debounceTimer.Stop();
+
         if (value.Length >= 2)
         {
-            _ = SearchAsync();
+            StatusMessage = "Typing...";
+            _debounceTimer.Start();
         }
         else if (string.IsNullOrEmpty(value))
         {
@@ -53,7 +74,8 @@ public partial class SearchViewModel : ObservableObject
     {
         if (!string.IsNullOrEmpty(SearchQuery))
         {
-            _ = SearchAsync();
+            _debounceTimer.Stop();
+            _debounceTimer.Start();
         }
     }
 
@@ -64,6 +86,12 @@ public partial class SearchViewModel : ObservableObject
 
     [RelayCommand]
     private async Task SearchAsync()
+    {
+        _debounceTimer.Stop();
+        await ExecuteSearchAsync();
+    }
+
+    private async Task ExecuteSearchAsync()
     {
         if (string.IsNullOrWhiteSpace(SearchQuery))
             return;
@@ -81,7 +109,7 @@ public partial class SearchViewModel : ObservableObject
             };
 
             var results = await _searchService.SearchAsync(filter);
-            
+
             SearchResults.Clear();
             foreach (var file in results)
             {
@@ -153,5 +181,12 @@ public partial class SearchViewModel : ObservableObject
     {
         SelectedFile = null;
         ShowPreview = false;
+    }
+
+    public void Dispose()
+    {
+        _debounceTimer.Stop();
+        _debounceTimer.Elapsed -= OnDebounceTimerElapsed;
+        _debounceTimer.Dispose();
     }
 }

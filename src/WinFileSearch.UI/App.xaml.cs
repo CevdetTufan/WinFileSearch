@@ -3,6 +3,7 @@ using Microsoft.Extensions.DependencyInjection;
 using WinFileSearch.Core.Services;
 using WinFileSearch.Data;
 using WinFileSearch.Data.Repositories;
+using WinFileSearch.UI.Services;
 using WinFileSearch.UI.ViewModels;
 using WinFileSearch.UI.Views;
 
@@ -14,6 +15,7 @@ namespace WinFileSearch.UI;
 public partial class App : System.Windows.Application
 {
     private readonly IServiceProvider _serviceProvider;
+    private FileWatcherSyncService? _watcherSyncService;
 
     public App()
     {
@@ -33,16 +35,19 @@ public partial class App : System.Windows.Application
         services.AddSingleton<IFileSearchService, FileSearchService>();
         services.AddSingleton<IFileWatcherService, FileWatcherService>();
 
+        // UI Services
+        services.AddSingleton<INavigationService, NavigationService>();
+
         // ViewModels
-        services.AddTransient<HomeViewModel>();
-        services.AddTransient<SearchViewModel>();
+        services.AddSingleton<HomeViewModel>();
+        services.AddSingleton<SearchViewModel>();
         services.AddTransient<SettingsViewModel>();
 
         // Views
         services.AddTransient<HomePage>();
         services.AddTransient<SearchPage>();
         services.AddTransient<SettingsPage>();
-        services.AddTransient<MainWindow>();
+        services.AddSingleton<MainWindow>();
     }
 
     protected override async void OnStartup(StartupEventArgs e)
@@ -57,6 +62,10 @@ public partial class App : System.Windows.Application
         var watcherService = _serviceProvider.GetRequiredService<IFileWatcherService>();
         await watcherService.StartWatchingAsync();
 
+        // Initialize watcher sync service (connects FileWatcher to DB)
+        var repository = _serviceProvider.GetRequiredService<IFileRepository>();
+        _watcherSyncService = new FileWatcherSyncService(watcherService, repository);
+
         // Show main window
         var mainWindow = _serviceProvider.GetRequiredService<MainWindow>();
         mainWindow.Show();
@@ -64,6 +73,9 @@ public partial class App : System.Windows.Application
 
     protected override void OnExit(ExitEventArgs e)
     {
+        // Dispose sync service
+        _watcherSyncService?.Dispose();
+
         // Stop file watcher
         var watcherService = _serviceProvider.GetRequiredService<IFileWatcherService>();
         watcherService.StopWatching();

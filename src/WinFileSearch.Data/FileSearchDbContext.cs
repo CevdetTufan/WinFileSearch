@@ -126,7 +126,25 @@ public class FileSearchDbContext : IDisposable
         ";
         await command.ExecuteNonQueryAsync();
     }
-    
+
+    /// <summary>
+    /// Clears all files but preserves the indexed folders list
+    /// </summary>
+    public async Task ClearFilesOnlyAsync()
+    {
+        var connection = GetConnection();
+        var command = connection.CreateCommand();
+        command.CommandText = @"
+            DELETE FROM Files;
+            DELETE FROM FilesSearch;
+            UPDATE IndexedFolders SET FileCount = 0, TotalSize = 0;
+        ";
+        await command.ExecuteNonQueryAsync();
+    }
+
+    /// <summary>
+    /// Clears all data including folders
+    /// </summary>
     public async Task ClearAllDataAsync()
     {
         var connection = GetConnection();
