@@ -1,0 +1,94 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:system="clr-namespace:System;assembly=mscorlib">
+
+    <!-- Application -->
+    <system:String x:Key="AppName">WinFileSearch</system:String>
+    <system:String x:Key="AppVersion">v2.0</system:String>
+
+    <!-- Navigation -->
+    <system:String x:Key="Nav_Home">Ana Sayfa</system:String>
+    <system:String x:Key="Nav_Search">Arama</system:String>
+    <system:String x:Key="Nav_Recent">Son Kullanılan</system:String>
+    <system:String x:Key="Nav_Settings">Ayarlar</system:String>
+
+    <!-- Home Page -->
+    <system:String x:Key="Home_Title">Hızlı Dosya Arama</system:String>
+    <system:String x:Key="Home_Subtitle">Bilgisayarınızdaki dosyaları anında bulun</system:String>
+    <system:String x:Key="Home_SearchPlaceholder">Dosya aramak için yazın...</system:String>
+    <system:String x:Key="Home_StartSearch">Aramayı Başlat</system:String>
+    <system:String x:Key="Home_FilesIndexed">dosya indekslendi</system:String>
+    <system:String x:Key="Home_FoldersMonitored">klasör izleniyor</system:String>
+
+    <!-- Search Page -->
+    <system:String x:Key="Search_Title">Dosya Ara</system:String>
+    <system:String x:Key="Search_Placeholder">Dosya adına göre ara...</system:String>
+    <system:String x:Key="Search_All">Tümü</system:String>
+    <system:String x:Key="Search_Documents">Belgeler</system:String>
+    <system:String x:Key="Search_Images">Resimler</system:String>
+    <system:String x:Key="Search_Media">Medya</system:String>
+    <system:String x:Key="Search_Code">Kod</system:String>
+    <system:String x:Key="Search_NoResults">Dosya bulunamadı</system:String>
+    <system:String x:Key="Search_Searching">Aranıyor...</system:String>
+    <system:String x:Key="Search_History">Son Aramalar</system:String>
+    <system:String x:Key="Search_ClearHistory">Geçmişi Temizle</system:String>
+
+    <!-- Preview Panel -->
+    <system:String x:Key="Preview_Title">HIZLI ÖNİZLEME</system:String>
+    <system:String x:Key="Preview_Type">TÜR</system:String>
+    <system:String x:Key="Preview_Size">BOYUT</system:String>
+    <system:String x:Key="Preview_Modified">DEĞİŞTİRİLME</system:String>
+    <system:String x:Key="Preview_Location">KONUM</system:String>
+    <system:String x:Key="Preview_OpenFile">Dosyayı Aç</system:String>
+    <system:String x:Key="Preview_OpenLocation">Konumu Aç</system:String>
+
+    <!-- Context Menu -->
+    <system:String x:Key="Context_Open">Aç</system:String>
+    <system:String x:Key="Context_OpenLocation">Dosya Konumunu Aç</system:String>
+    <system:String x:Key="Context_CopyPath">Yolu Kopyala</system:String>
+    <system:String x:Key="Context_CopyName">Dosya Adını Kopyala</system:String>
+
+    <!-- Settings Page -->
+    <system:String x:Key="Settings_Title">İndeksleme Ayarları</system:String>
+    <system:String x:Key="Settings_General">GENEL</system:String>
+    <system:String x:Key="Settings_BackgroundIndexing">Arka Plan İndeksleme</system:String>
+    <system:String x:Key="Settings_BackgroundIndexingDesc">Uygulama küçültülmüşken dosya kayıtlarını güncellemeye izin ver</system:String>
+    <system:String x:Key="Settings_StartWithWindows">Windows ile Başlat</system:String>
+    <system:String x:Key="Settings_StartWithWindowsDesc">Windows başladığında WinFileSearch'ü otomatik başlat</system:String>
+    <system:String x:Key="Settings_MinimizeToTray">Sistem Tepsisine Küçült</system:String>
+    <system:String x:Key="Settings_MinimizeToTrayDesc">Pencere kapatıldığında arka planda çalışmaya devam et</system:String>
+    <system:String x:Key="Settings_RebuildIndex">İndeksi Yeniden Oluştur</system:String>
+    <system:String x:Key="Settings_RebuildIndexDesc">Mevcut veritabanını temizle ve tüm klasörleri yeniden tara</system:String>
+    <system:String x:Key="Settings_RebuildNow">Veritabanını Şimdi Yeniden Oluştur</system:String>
+    <system:String x:Key="Settings_CancelRebuild">Yeniden Oluşturmayı İptal Et</system:String>
+    <system:String x:Key="Settings_IncludedFolders">DAHİL EDİLEN KLASÖRLER</system:String>
+    <system:String x:Key="Settings_AddFolder">Klasör Ekle</system:String>
+    <system:String x:Key="Settings_ExcludedFolders">HARİÇ TUTULAN KLASÖRLER</system:String>
+    <system:String x:Key="Settings_AddExclusion">Hariç Tutma Ekle</system:String>
+    <system:String x:Key="Settings_DragDropHint">Klasörleri buraya sürükleyip bırakın</system:String>
+    <system:String x:Key="Settings_DragDropSubHint">veya yukarıdaki 'Klasör Ekle' butonunu kullanın</system:String>
+
+    <!-- Performance -->
+    <system:String x:Key="Perf_Title">PERFORMANS METRİKLERİ</system:String>
+    <system:String x:Key="Perf_TotalSearches">Toplam Arama</system:String>
+    <system:String x:Key="Perf_AvgSearchTime">Ort. Arama Süresi</system:String>
+    <system:String x:Key="Perf_MemoryUsage">Bellek Kullanımı</system:String>
+    <system:String x:Key="Perf_Uptime">Çalışma Süresi</system:String>
+    <system:String x:Key="Perf_Refresh">Metrikleri Yenile</system:String>
+    <system:String x:Key="Perf_OpenLogs">Log Klasörünü Aç</system:String>
+
+    <!-- Common -->
+    <system:String x:Key="Common_LastIndexed">Son indeksleme:</system:String>
+    <system:String x:Key="Common_TotalFiles">Toplam indekslenen dosya:</system:String>
+    <system:String x:Key="Common_Files">dosya</system:String>
+    <system:String x:Key="Common_Never">Hiçbir zaman</system:String>
+    <system:String x:Key="Common_ExcludedFromIndexing">İndekslemeden hariç tutuldu</system:String>
+
+    <!-- System Tray -->
+    <system:String x:Key="Tray_Show">Pencereyi Göster</system:String>
+    <system:String x:Key="Tray_QuickSearch">Hızlı Arama (Win+Shift+F)</system:String>
+    <system:String x:Key="Tray_Exit">Çıkış</system:String>
+    <system:String x:Key="Tray_Minimized">Uygulama sistem tepsisine küçültüldü. Geri yüklemek için çift tıklayın.</system:String>
+    <system:String x:Key="Tray_Running">Uygulama hâlâ sistem tepsisinde çalışıyor.</system:String>
+
+</ResourceDictionary>

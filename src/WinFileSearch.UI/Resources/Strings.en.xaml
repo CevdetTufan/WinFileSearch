@@ -1,0 +1,94 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:system="clr-namespace:System;assembly=mscorlib">
+
+    <!-- Application -->
+    <system:String x:Key="AppName">WinFileSearch</system:String>
+    <system:String x:Key="AppVersion">v2.0</system:String>
+
+    <!-- Navigation -->
+    <system:String x:Key="Nav_Home">Home</system:String>
+    <system:String x:Key="Nav_Search">Search</system:String>
+    <system:String x:Key="Nav_Recent">Recent</system:String>
+    <system:String x:Key="Nav_Settings">Settings</system:String>
+
+    <!-- Home Page -->
+    <system:String x:Key="Home_Title">Quick File Search</system:String>
+    <system:String x:Key="Home_Subtitle">Find files instantly across your computer</system:String>
+    <system:String x:Key="Home_SearchPlaceholder">Type to search files...</system:String>
+    <system:String x:Key="Home_StartSearch">Start Search</system:String>
+    <system:String x:Key="Home_FilesIndexed">files indexed</system:String>
+    <system:String x:Key="Home_FoldersMonitored">folders monitored</system:String>
+
+    <!-- Search Page -->
+    <system:String x:Key="Search_Title">Search Files</system:String>
+    <system:String x:Key="Search_Placeholder">Search files by name...</system:String>
+    <system:String x:Key="Search_All">All</system:String>
+    <system:String x:Key="Search_Documents">Documents</system:String>
+    <system:String x:Key="Search_Images">Images</system:String>
+    <system:String x:Key="Search_Media">Media</system:String>
+    <system:String x:Key="Search_Code">Code</system:String>
+    <system:String x:Key="Search_NoResults">No files found</system:String>
+    <system:String x:Key="Search_Searching">Searching...</system:String>
+    <system:String x:Key="Search_History">Recent Searches</system:String>
+    <system:String x:Key="Search_ClearHistory">Clear History</system:String>
+
+    <!-- Preview Panel -->
+    <system:String x:Key="Preview_Title">QUICK PREVIEW</system:String>
+    <system:String x:Key="Preview_Type">TYPE</system:String>
+    <system:String x:Key="Preview_Size">SIZE</system:String>
+    <system:String x:Key="Preview_Modified">MODIFIED</system:String>
+    <system:String x:Key="Preview_Location">LOCATION</system:String>
+    <system:String x:Key="Preview_OpenFile">Open File</system:String>
+    <system:String x:Key="Preview_OpenLocation">Open Location</system:String>
+
+    <!-- Context Menu -->
+    <system:String x:Key="Context_Open">Open</system:String>
+    <system:String x:Key="Context_OpenLocation">Open File Location</system:String>
+    <system:String x:Key="Context_CopyPath">Copy Path</system:String>
+    <system:String x:Key="Context_CopyName">Copy File Name</system:String>
+
+    <!-- Settings Page -->
+    <system:String x:Key="Settings_Title">Indexing Settings</system:String>
+    <system:String x:Key="Settings_General">GENERAL</system:String>
+    <system:String x:Key="Settings_BackgroundIndexing">Background Indexing</system:String>
+    <system:String x:Key="Settings_BackgroundIndexingDesc">Allow the app to update file records while minimized</system:String>
+    <system:String x:Key="Settings_StartWithWindows">Start with Windows</system:String>
+    <system:String x:Key="Settings_StartWithWindowsDesc">Launch WinFileSearch automatically when Windows starts</system:String>
+    <system:String x:Key="Settings_MinimizeToTray">Minimize to System Tray</system:String>
+    <system:String x:Key="Settings_MinimizeToTrayDesc">Keep running in background when window is closed</system:String>
+    <system:String x:Key="Settings_RebuildIndex">Rebuild Index</system:String>
+    <system:String x:Key="Settings_RebuildIndexDesc">Clear current database and start a fresh scan of all folders</system:String>
+    <system:String x:Key="Settings_RebuildNow">Rebuild Database Now</system:String>
+    <system:String x:Key="Settings_CancelRebuild">Cancel Rebuild</system:String>
+    <system:String x:Key="Settings_IncludedFolders">INCLUDED FOLDERS</system:String>
+    <system:String x:Key="Settings_AddFolder">Add Folder</system:String>
+    <system:String x:Key="Settings_ExcludedFolders">EXCLUDED FOLDERS</system:String>
+    <system:String x:Key="Settings_AddExclusion">Add Exclusion</system:String>
+    <system:String x:Key="Settings_DragDropHint">Drag and drop folders here</system:String>
+    <system:String x:Key="Settings_DragDropSubHint">or use the 'Add Folder' button above</system:String>
+
+    <!-- Performance -->
+    <system:String x:Key="Perf_Title">PERFORMANCE METRICS</system:String>
+    <system:String x:Key="Perf_TotalSearches">Total Searches</system:String>
+    <system:String x:Key="Perf_AvgSearchTime">Avg Search Time</system:String>
+    <system:String x:Key="Perf_MemoryUsage">Memory Usage</system:String>
+    <system:String x:Key="Perf_Uptime">Uptime</system:String>
+    <system:String x:Key="Perf_Refresh">Refresh Metrics</system:String>
+    <system:String x:Key="Perf_OpenLogs">Open Log Folder</system:String>
+
+    <!-- Common -->
+    <system:String x:Key="Common_LastIndexed">Last indexed:</system:String>
+    <system:String x:Key="Common_TotalFiles">Total files indexed:</system:String>
+    <system:String x:Key="Common_Files">files</system:String>
+    <system:String x:Key="Common_Never">Never</system:String>
+    <system:String x:Key="Common_ExcludedFromIndexing">Excluded from indexing</system:String>
+
+    <!-- System Tray -->
+    <system:String x:Key="Tray_Show">Show Window</system:String>
+    <system:String x:Key="Tray_QuickSearch">Quick Search (Win+Shift+F)</system:String>
+    <system:String x:Key="Tray_Exit">Exit</system:String>
+    <system:String x:Key="Tray_Minimized">Application minimized to system tray. Double-click to restore.</system:String>
+    <system:String x:Key="Tray_Running">Application is still running in the system tray.</system:String>
+
+</ResourceDictionary>

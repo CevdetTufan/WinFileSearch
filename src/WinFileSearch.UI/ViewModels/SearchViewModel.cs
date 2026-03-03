@@ -14,6 +14,7 @@ public partial class SearchViewModel : ObservableObject, IDisposable
     private readonly IFileSearchService _searchService;
     private readonly ISearchHistoryService _historyService;
     private readonly IFavoritesService _favoritesService;
+    private readonly ILoggingService _loggingService;
     private readonly Timer _debounceTimer;
     private const int DebounceDelayMs = 300;
 
@@ -44,11 +45,12 @@ public partial class SearchViewModel : ObservableObject, IDisposable
     public ObservableCollection<FileEntry> SearchResults { get; } = new();
     public ObservableCollection<string> SearchHistory { get; } = new();
 
-    public SearchViewModel(IFileSearchService searchService, ISearchHistoryService historyService, IFavoritesService favoritesService)
+    public SearchViewModel(IFileSearchService searchService, ISearchHistoryService historyService, IFavoritesService favoritesService, ILoggingService loggingService)
     {
         _searchService = searchService;
         _historyService = historyService;
         _favoritesService = favoritesService;
+        _loggingService = loggingService;
 
         // Initialize debounce timer
         _debounceTimer = new Timer(DebounceDelayMs);
@@ -59,6 +61,8 @@ public partial class SearchViewModel : ObservableObject, IDisposable
         LoadHistory();
         _historyService.HistoryChanged += OnHistoryChanged;
         _favoritesService.FavoritesChanged += OnFavoritesChanged;
+
+        _loggingService.LogDebug("SearchViewModel initialized");
     }
 
     private void OnHistoryChanged(object? sender, EventArgs e)
@@ -171,6 +175,8 @@ public partial class SearchViewModel : ObservableObject, IDisposable
         ShowHistory = false;
         StatusMessage = "Searching...";
 
+        var startTime = DateTime.Now;
+
         try
         {
             var filter = new SearchFilter
@@ -180,6 +186,8 @@ public partial class SearchViewModel : ObservableObject, IDisposable
                 MaxResults = 100
             };
 
+            _loggingService.LogDebug("Executing search: Query={Query}, Category={Category}", SearchQuery, SelectedCategory?.ToString() ?? "All");
+
             var results = await _searchService.SearchAsync(filter);
 
             SearchResults.Clear();
@@ -187,6 +195,9 @@ public partial class SearchViewModel : ObservableObject, IDisposable
             {
                 SearchResults.Add(file);
             }
+
+            var duration = DateTime.Now - startTime;
+            _loggingService.LogPerformance($"Search '{SearchQuery}'", duration);
 
             StatusMessage = $"{SearchResults.Count} files found";
 
@@ -198,6 +209,7 @@ public partial class SearchViewModel : ObservableObject, IDisposable
         }
         catch (Exception ex)
         {
+            _loggingService.LogError("Search failed for query: {Query}", ex, SearchQuery);
             StatusMessage = $"Search error: {ex.Message}";
         }
         finally

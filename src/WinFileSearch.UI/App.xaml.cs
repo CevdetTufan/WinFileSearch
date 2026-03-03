@@ -38,6 +38,10 @@ public partial class App : System.Windows.Application
         services.AddSingleton<IFileWatcherService, FileWatcherService>();
 
         // UI Services
+        services.AddSingleton<ILoggingService, LoggingService>();
+        services.AddSingleton<IPerformanceMetricsService, PerformanceMetricsService>();
+        services.AddSingleton<ISettingsService, SettingsService>();
+        services.AddSingleton<ILocalizationService, LocalizationService>();
         services.AddSingleton<INavigationService, NavigationService>();
         services.AddSingleton<ISearchHistoryService, SearchHistoryService>();
         services.AddSingleton<IFavoritesService, FavoritesService>();
@@ -62,13 +66,20 @@ public partial class App : System.Windows.Application
     {
         base.OnStartup(e);
 
+        // Initialize logging first
+        var loggingService = _serviceProvider.GetRequiredService<ILoggingService>();
+        loggingService.Initialize();
+        loggingService.LogInfo("Application starting...");
+
         // Initialize database
         var dbContext = _serviceProvider.GetRequiredService<FileSearchDbContext>();
         await dbContext.InitializeDatabaseAsync();
+        loggingService.LogInfo("Database initialized");
 
         // Start file watcher
         var watcherService = _serviceProvider.GetRequiredService<IFileWatcherService>();
         await watcherService.StartWatchingAsync();
+        loggingService.LogInfo("File watcher started");
 
         // Initialize watcher sync service (connects FileWatcher to DB)
         var repository = _serviceProvider.GetRequiredService<IFileRepository>();
@@ -77,6 +88,7 @@ public partial class App : System.Windows.Application
         // Show main window
         var mainWindow = _serviceProvider.GetRequiredService<MainWindow>();
         mainWindow.Show();
+        loggingService.LogInfo("Main window displayed");
 
         // Initialize system tray
         _systemTrayService = _serviceProvider.GetRequiredService<ISystemTrayService>();
@@ -100,6 +112,9 @@ public partial class App : System.Windows.Application
 
     protected override void OnExit(ExitEventArgs e)
     {
+        var loggingService = _serviceProvider.GetRequiredService<ILoggingService>();
+        loggingService.LogInfo("Application shutting down...");
+
         // Dispose global hotkey
         _globalHotkeyService?.Dispose();
 
@@ -116,6 +131,9 @@ public partial class App : System.Windows.Application
         // Dispose database context
         var dbContext = _serviceProvider.GetRequiredService<FileSearchDbContext>();
         dbContext.Dispose();
+
+        loggingService.LogInfo("Application shutdown complete");
+        LoggingService.CloseAndFlush();
 
         base.OnExit(e);
     }

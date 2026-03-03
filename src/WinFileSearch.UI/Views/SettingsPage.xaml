@@ -103,6 +103,35 @@
                 </Grid>
             </Border>
 
+            <!-- Language Selection -->
+            <Border Style="{StaticResource CardPanelStyle}" Margin="0,0,0,12">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <StackPanel Grid.Column="0">
+                        <TextBlock Text="Language" 
+                                   FontSize="14" 
+                                   FontWeight="Medium"
+                                   Foreground="{StaticResource PrimaryTextBrush}"/>
+                        <TextBlock Text="Select your preferred language" 
+                                   FontSize="12"
+                                   Foreground="{StaticResource SecondaryTextBrush}"
+                                   Margin="0,4,0,0"/>
+                    </StackPanel>
+                    <ComboBox Grid.Column="1"
+                              ItemsSource="{Binding AvailableLanguages}"
+                              SelectedValue="{Binding SelectedLanguage}"
+                              SelectedValuePath="Code"
+                              DisplayMemberPath="Name"
+                              Width="120"
+                              VerticalAlignment="Center"
+                              Background="{StaticResource SecondaryBackgroundBrush}"
+                              Foreground="{StaticResource PrimaryTextBrush}"/>
+                </Grid>
+            </Border>
+
             <!-- Rebuild Index -->
             <Border Style="{StaticResource CardPanelStyle}" Margin="0,0,0,24">
                 <StackPanel>
@@ -321,6 +350,64 @@
                     <Run Text="Total files indexed: "/>
                     <Run Text="{Binding TotalFilesIndexed, StringFormat='{}{0:N0}'}"/>
                 </TextBlock>
+            </StackPanel>
+
+            <!-- Performance Metrics Section -->
+            <TextBlock Text="PERFORMANCE METRICS" 
+                       FontSize="11" 
+                       FontWeight="SemiBold"
+                       Foreground="{StaticResource SecondaryTextBrush}"
+                       Margin="0,24,0,12"/>
+
+            <Border Style="{StaticResource CardPanelStyle}" Margin="0,0,0,12">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+
+                    <!-- Total Searches -->
+                    <StackPanel Grid.Column="0" Grid.Row="0" Margin="0,0,0,16">
+                        <TextBlock Text="Total Searches" FontSize="12" Foreground="{StaticResource SecondaryTextBrush}"/>
+                        <TextBlock Text="{Binding TotalSearches}" FontSize="20" FontWeight="SemiBold" Foreground="{StaticResource PrimaryTextBrush}"/>
+                    </StackPanel>
+
+                    <!-- Avg Search Time -->
+                    <StackPanel Grid.Column="1" Grid.Row="0" Margin="0,0,0,16">
+                        <TextBlock Text="Avg Search Time" FontSize="12" Foreground="{StaticResource SecondaryTextBrush}"/>
+                        <TextBlock FontSize="20" FontWeight="SemiBold" Foreground="{StaticResource PrimaryTextBrush}">
+                            <Run Text="{Binding AverageSearchTimeMs}"/><Run Text=" ms"/>
+                        </TextBlock>
+                    </StackPanel>
+
+                    <!-- Memory Usage -->
+                    <StackPanel Grid.Column="0" Grid.Row="1">
+                        <TextBlock Text="Memory Usage" FontSize="12" Foreground="{StaticResource SecondaryTextBrush}"/>
+                        <TextBlock FontSize="20" FontWeight="SemiBold" Foreground="{StaticResource PrimaryTextBrush}">
+                            <Run Text="{Binding MemoryUsageMB}"/><Run Text=" MB"/>
+                        </TextBlock>
+                    </StackPanel>
+
+                    <!-- Uptime -->
+                    <StackPanel Grid.Column="1" Grid.Row="1">
+                        <TextBlock Text="Uptime" FontSize="12" Foreground="{StaticResource SecondaryTextBrush}"/>
+                        <TextBlock Text="{Binding Uptime}" FontSize="20" FontWeight="SemiBold" Foreground="{StaticResource PrimaryTextBrush}"/>
+                    </StackPanel>
+                </Grid>
+            </Border>
+
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,0,0,12">
+                <Button Content="Refresh Metrics" 
+                        Style="{StaticResource SecondaryButtonStyle}"
+                        Command="{Binding RefreshMetricsCommand}"
+                        Margin="0,0,12,0"/>
+                <Button Content="Open Log Folder" 
+                        Style="{StaticResource SecondaryButtonStyle}"
+                        Command="{Binding OpenLogFolderCommand}"/>
             </StackPanel>
         </StackPanel>
     </ScrollViewer>

@@ -8,11 +8,19 @@ using WinFileSearch.UI.Services;
 
 namespace WinFileSearch.UI.ViewModels;
 
+public class LanguageOption
+{
+    public string Code { get; set; } = string.Empty;
+    public string Name { get; set; } = string.Empty;
+}
+
 public partial class SettingsViewModel : ObservableObject
 {
     private readonly IFileIndexService _indexService;
     private readonly IStartupService _startupService;
     private readonly ISettingsService _settingsService;
+    private readonly IPerformanceMetricsService _metricsService;
+    private readonly ILoggingService _loggingService;
     private CancellationTokenSource? _indexingCts;
 
     [ObservableProperty]
@@ -39,21 +47,78 @@ public partial class SettingsViewModel : ObservableObject
     [ObservableProperty]
     private bool _minimizeToTray;
 
+    // Performance metrics
+    [ObservableProperty]
+    private long _totalSearches;
+
+    [ObservableProperty]
+    private double _averageSearchTimeMs;
+
+    [ObservableProperty]
+    private long _memoryUsageMB;
+
+    [ObservableProperty]
+    private string _uptime = string.Empty;
+
+    [ObservableProperty]
+    private string _logFilePath = string.Empty;
+
+    [ObservableProperty]
+    private string _selectedLanguage = "en";
+
     public ObservableCollection<IndexedFolder> IncludedFolders { get; } = new();
     public ObservableCollection<IndexedFolder> ExcludedFolders { get; } = new();
+    public ObservableCollection<LanguageOption> AvailableLanguages { get; } = new()
+    {
+        new LanguageOption { Code = "en", Name = "English" },
+        new LanguageOption { Code = "tr", Name = "Türkçe" }
+    };
 
-    public SettingsViewModel(IFileIndexService indexService, IStartupService startupService, ISettingsService settingsService)
+    public SettingsViewModel(IFileIndexService indexService, IStartupService startupService, ISettingsService settingsService, IPerformanceMetricsService metricsService, ILoggingService loggingService)
     {
         _indexService = indexService;
         _startupService = startupService;
         _settingsService = settingsService;
+        _metricsService = metricsService;
+        _loggingService = loggingService;
 
         // Load settings
         StartWithWindows = _startupService.IsStartupEnabled;
         MinimizeToTray = _settingsService.Settings.MinimizeToTray;
         BackgroundIndexingEnabled = _settingsService.Settings.BackgroundIndexing;
+        LogFilePath = _loggingService.GetLogFilePath();
 
         _ = LoadDataAsync();
+        RefreshMetrics();
+    }
+
+    [RelayCommand]
+    private void RefreshMetrics()
+    {
+        var metrics = _metricsService.GetMetrics();
+        TotalSearches = metrics.TotalSearches;
+        AverageSearchTimeMs = Math.Round(metrics.AverageSearchTimeMs, 2);
+        MemoryUsageMB = metrics.MemoryUsageMB;
+        Uptime = FormatUptime(metrics.Uptime);
+    }
+
+    private static string FormatUptime(TimeSpan uptime)
+    {
+        if (uptime.TotalDays >= 1)
+            return $"{(int)uptime.TotalDays}d {uptime.Hours}h {uptime.Minutes}m";
+        if (uptime.TotalHours >= 1)
+            return $"{(int)uptime.TotalHours}h {uptime.Minutes}m";
+        return $"{uptime.Minutes}m {uptime.Seconds}s";
+    }
+
+    [RelayCommand]
+    private void OpenLogFolder()
+    {
+        try
+        {
+            System.Diagnostics.Process.Start("explorer.exe", LogFilePath);
+        }
+        catch { }
     }
 
     partial void OnStartWithWindowsChanged(bool value)
