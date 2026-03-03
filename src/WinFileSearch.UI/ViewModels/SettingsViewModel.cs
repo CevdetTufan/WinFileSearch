@@ -4,12 +4,15 @@ using Microsoft.Win32;
 using System.Collections.ObjectModel;
 using WinFileSearch.Core.Services;
 using WinFileSearch.Data.Models;
+using WinFileSearch.UI.Services;
 
 namespace WinFileSearch.UI.ViewModels;
 
 public partial class SettingsViewModel : ObservableObject
 {
     private readonly IFileIndexService _indexService;
+    private readonly IStartupService _startupService;
+    private readonly ISettingsService _settingsService;
     private CancellationTokenSource? _indexingCts;
 
     [ObservableProperty]
@@ -30,13 +33,46 @@ public partial class SettingsViewModel : ObservableObject
     [ObservableProperty]
     private DateTime? _lastIndexed;
 
+    [ObservableProperty]
+    private bool _startWithWindows;
+
+    [ObservableProperty]
+    private bool _minimizeToTray;
+
     public ObservableCollection<IndexedFolder> IncludedFolders { get; } = new();
     public ObservableCollection<IndexedFolder> ExcludedFolders { get; } = new();
 
-    public SettingsViewModel(IFileIndexService indexService)
+    public SettingsViewModel(IFileIndexService indexService, IStartupService startupService, ISettingsService settingsService)
     {
         _indexService = indexService;
+        _startupService = startupService;
+        _settingsService = settingsService;
+
+        // Load settings
+        StartWithWindows = _startupService.IsStartupEnabled;
+        MinimizeToTray = _settingsService.Settings.MinimizeToTray;
+        BackgroundIndexingEnabled = _settingsService.Settings.BackgroundIndexing;
+
         _ = LoadDataAsync();
+    }
+
+    partial void OnStartWithWindowsChanged(bool value)
+    {
+        _startupService.SetStartup(value);
+        _settingsService.Settings.StartWithWindows = value;
+        _settingsService.Save();
+    }
+
+    partial void OnMinimizeToTrayChanged(bool value)
+    {
+        _settingsService.Settings.MinimizeToTray = value;
+        _settingsService.Save();
+    }
+
+    partial void OnBackgroundIndexingEnabledChanged(bool value)
+    {
+        _settingsService.Settings.BackgroundIndexing = value;
+        _settingsService.Save();
     }
 
     private async Task LoadDataAsync()

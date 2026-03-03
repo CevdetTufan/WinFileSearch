@@ -228,16 +228,36 @@
                             <!-- File Info -->
                             <StackPanel Grid.Column="2" Grid.RowSpan="2"
                                         VerticalAlignment="Center"
-                                        HorizontalAlignment="Right">
-                                <TextBlock Text="{Binding Size, Converter={StaticResource FileSizeConverter}}"
-                                           FontSize="12"
-                                           Foreground="{StaticResource SecondaryTextBrush}"
-                                           HorizontalAlignment="Right"/>
-                                <TextBlock Text="{Binding ModifiedAt, Converter={StaticResource RelativeTimeConverter}}"
-                                           FontSize="11"
-                                           Foreground="{StaticResource SecondaryTextBrush}"
-                                           HorizontalAlignment="Right"
-                                           Margin="0,2,0,0"/>
+                                        HorizontalAlignment="Right"
+                                        Orientation="Horizontal">
+                                <Button Command="{Binding DataContext.ToggleFavoriteForFileCommand, RelativeSource={RelativeSource AncestorType=ListBox}}"
+                                        CommandParameter="{Binding}"
+                                        Background="Transparent"
+                                        BorderThickness="0"
+                                        Cursor="Hand"
+                                        Padding="6"
+                                        Margin="0,0,8,0"
+                                        ToolTip="Toggle Favorite">
+                                    <Path Width="16" Height="16" Stretch="Uniform"
+                                          Data="M12,17.27L18.18,21L16.54,13.97L22,9.24L14.81,8.62L12,2L9.19,8.62L2,9.24L7.45,13.97L5.82,21L12,17.27Z">
+                                        <Path.Style>
+                                            <Style TargetType="Path">
+                                                <Setter Property="Fill" Value="{StaticResource SecondaryTextBrush}"/>
+                                            </Style>
+                                        </Path.Style>
+                                    </Path>
+                                </Button>
+                                <StackPanel VerticalAlignment="Center">
+                                    <TextBlock Text="{Binding Size, Converter={StaticResource FileSizeConverter}}"
+                                               FontSize="12"
+                                               Foreground="{StaticResource SecondaryTextBrush}"
+                                               HorizontalAlignment="Right"/>
+                                    <TextBlock Text="{Binding ModifiedAt, Converter={StaticResource RelativeTimeConverter}}"
+                                               FontSize="11"
+                                               Foreground="{StaticResource SecondaryTextBrush}"
+                                               HorizontalAlignment="Right"
+                                               Margin="0,2,0,0"/>
+                                </StackPanel>
                             </StackPanel>
                         </Grid>
                     </DataTemplate>
@@ -264,13 +284,35 @@
                                    FontSize="11" 
                                    FontWeight="SemiBold"
                                    Foreground="{StaticResource SecondaryTextBrush}"/>
-                        <Button Content="✕" 
-                                HorizontalAlignment="Right"
-                                Background="Transparent"
-                                Foreground="{StaticResource SecondaryTextBrush}"
-                                BorderThickness="0"
-                                Cursor="Hand"
-                                Command="{Binding ClosePreviewCommand}"/>
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                            <Button Command="{Binding ToggleFavoriteCommand}"
+                                    Background="Transparent"
+                                    BorderThickness="0"
+                                    Cursor="Hand"
+                                    Padding="6"
+                                    Margin="0,0,8,0"
+                                    ToolTip="Toggle Favorite">
+                                <Path Width="18" Height="18" Stretch="Uniform"
+                                      Data="M12,17.27L18.18,21L16.54,13.97L22,9.24L14.81,8.62L12,2L9.19,8.62L2,9.24L7.45,13.97L5.82,21L12,17.27Z">
+                                    <Path.Style>
+                                        <Style TargetType="Path">
+                                            <Setter Property="Fill" Value="{StaticResource SecondaryTextBrush}"/>
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding IsSelectedFileFavorite}" Value="True">
+                                                    <Setter Property="Fill" Value="#FFD700"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </Path.Style>
+                                </Path>
+                            </Button>
+                            <Button Content="✕" 
+                                    Background="Transparent"
+                                    Foreground="{StaticResource SecondaryTextBrush}"
+                                    BorderThickness="0"
+                                    Cursor="Hand"
+                                    Command="{Binding ClosePreviewCommand}"/>
+                        </StackPanel>
                     </Grid>
 
                     <!-- File Icon and Name -->

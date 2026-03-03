@@ -13,6 +13,7 @@ public partial class SearchViewModel : ObservableObject, IDisposable
 {
     private readonly IFileSearchService _searchService;
     private readonly ISearchHistoryService _historyService;
+    private readonly IFavoritesService _favoritesService;
     private readonly Timer _debounceTimer;
     private const int DebounceDelayMs = 300;
 
@@ -37,13 +38,17 @@ public partial class SearchViewModel : ObservableObject, IDisposable
     [ObservableProperty]
     private string _statusMessage = string.Empty;
 
+    [ObservableProperty]
+    private bool _isSelectedFileFavorite;
+
     public ObservableCollection<FileEntry> SearchResults { get; } = new();
     public ObservableCollection<string> SearchHistory { get; } = new();
 
-    public SearchViewModel(IFileSearchService searchService, ISearchHistoryService historyService)
+    public SearchViewModel(IFileSearchService searchService, ISearchHistoryService historyService, IFavoritesService favoritesService)
     {
         _searchService = searchService;
         _historyService = historyService;
+        _favoritesService = favoritesService;
 
         // Initialize debounce timer
         _debounceTimer = new Timer(DebounceDelayMs);
@@ -53,11 +58,22 @@ public partial class SearchViewModel : ObservableObject, IDisposable
         // Load search history
         LoadHistory();
         _historyService.HistoryChanged += OnHistoryChanged;
+        _favoritesService.FavoritesChanged += OnFavoritesChanged;
     }
 
     private void OnHistoryChanged(object? sender, EventArgs e)
     {
         System.Windows.Application.Current?.Dispatcher.Invoke(LoadHistory);
+    }
+
+    private void OnFavoritesChanged(object? sender, EventArgs e)
+    {
+        System.Windows.Application.Current?.Dispatcher.Invoke(UpdateFavoriteStatus);
+    }
+
+    private void UpdateFavoriteStatus()
+    {
+        IsSelectedFileFavorite = SelectedFile != null && _favoritesService.IsFavorite(SelectedFile.FullPath);
     }
 
     private void LoadHistory()
@@ -113,6 +129,7 @@ public partial class SearchViewModel : ObservableObject, IDisposable
     partial void OnSelectedFileChanged(FileEntry? value)
     {
         ShowPreview = value != null;
+        UpdateFavoriteStatus();
     }
 
     [RelayCommand]
@@ -262,11 +279,40 @@ public partial class SearchViewModel : ObservableObject, IDisposable
         ShowPreview = false;
     }
 
+    [RelayCommand]
+    private void ToggleFavorite()
+    {
+        if (SelectedFile != null)
+        {
+            _favoritesService.ToggleFavorite(SelectedFile.FullPath);
+        }
+    }
+
+    [RelayCommand]
+    private void ToggleFavoriteForFile(FileEntry? file)
+    {
+        if (file != null)
+        {
+            _favoritesService.ToggleFavorite(file.FullPath);
+            // Update UI if it's the selected file
+            if (SelectedFile?.FullPath == file.FullPath)
+            {
+                UpdateFavoriteStatus();
+            }
+        }
+    }
+
+    public bool IsFavorite(string filePath)
+    {
+        return _favoritesService.IsFavorite(filePath);
+    }
+
     public void Dispose()
     {
         _debounceTimer.Stop();
         _debounceTimer.Elapsed -= OnDebounceTimerElapsed;
         _debounceTimer.Dispose();
         _historyService.HistoryChanged -= OnHistoryChanged;
+        _favoritesService.FavoritesChanged -= OnFavoritesChanged;
     }
 }

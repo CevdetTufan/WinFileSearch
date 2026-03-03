@@ -16,6 +16,8 @@ public partial class App : System.Windows.Application
 {
     private readonly IServiceProvider _serviceProvider;
     private FileWatcherSyncService? _watcherSyncService;
+    private ISystemTrayService? _systemTrayService;
+    private IGlobalHotkeyService? _globalHotkeyService;
 
     public App()
     {
@@ -38,6 +40,11 @@ public partial class App : System.Windows.Application
         // UI Services
         services.AddSingleton<INavigationService, NavigationService>();
         services.AddSingleton<ISearchHistoryService, SearchHistoryService>();
+        services.AddSingleton<IFavoritesService, FavoritesService>();
+        services.AddSingleton<ISystemTrayService, SystemTrayService>();
+        services.AddSingleton<IGlobalHotkeyService, GlobalHotkeyService>();
+        services.AddSingleton<ISettingsService, SettingsService>();
+        services.AddSingleton<IStartupService, StartupService>();
 
         // ViewModels
         services.AddSingleton<HomeViewModel>();
@@ -70,10 +77,35 @@ public partial class App : System.Windows.Application
         // Show main window
         var mainWindow = _serviceProvider.GetRequiredService<MainWindow>();
         mainWindow.Show();
+
+        // Initialize system tray
+        _systemTrayService = _serviceProvider.GetRequiredService<ISystemTrayService>();
+        _systemTrayService.Initialize(mainWindow);
+
+        // Initialize global hotkey (Win+Shift+F)
+        _globalHotkeyService = _serviceProvider.GetRequiredService<IGlobalHotkeyService>();
+        _globalHotkeyService.Initialize(mainWindow);
+        _globalHotkeyService.HotkeyPressed += (s, e) =>
+        {
+            mainWindow.Show();
+            mainWindow.WindowState = WindowState.Normal;
+            mainWindow.Activate();
+            mainWindow.Focus();
+
+            // Navigate to search and focus search box
+            var navigationService = _serviceProvider.GetRequiredService<INavigationService>();
+            navigationService.NavigateToSearch();
+        };
     }
 
     protected override void OnExit(ExitEventArgs e)
     {
+        // Dispose global hotkey
+        _globalHotkeyService?.Dispose();
+
+        // Dispose system tray
+        _systemTrayService?.Dispose();
+
         // Dispose sync service
         _watcherSyncService?.Dispose();
 
