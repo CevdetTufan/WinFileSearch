@@ -37,6 +37,7 @@ public partial class App : System.Windows.Application
 
         // UI Services
         services.AddSingleton<INavigationService, NavigationService>();
+        services.AddSingleton<ISearchHistoryService, SearchHistoryService>();
 
         // ViewModels
         services.AddSingleton<HomeViewModel>();

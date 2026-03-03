@@ -71,12 +71,31 @@ public partial class SettingsViewModel : ObservableObject
 
         if (dialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
         {
-            var folder = await _indexService.AddFolderAsync(dialog.SelectedPath);
-            IncludedFolders.Add(folder);
-            
-            // Start indexing the new folder
-            await IndexFolderAsync(folder.Path);
+            await AddFolderByPathAsync(dialog.SelectedPath);
         }
+    }
+
+    /// <summary>
+    /// Adds a folder by path (used by drag & drop)
+    /// </summary>
+    public async void AddFolderByPath(string path)
+    {
+        await AddFolderByPathAsync(path);
+    }
+
+    private async Task AddFolderByPathAsync(string path)
+    {
+        // Check if folder is already in the list
+        if (IncludedFolders.Any(f => f.Path.Equals(path, StringComparison.OrdinalIgnoreCase)))
+        {
+            return;
+        }
+
+        var folder = await _indexService.AddFolderAsync(path);
+        IncludedFolders.Add(folder);
+
+        // Start indexing the new folder
+        await IndexFolderAsync(folder.Path);
     }
 
     [RelayCommand]

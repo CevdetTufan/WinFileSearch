@@ -4,6 +4,7 @@ using System.Collections.ObjectModel;
 using System.Timers;
 using WinFileSearch.Core.Services;
 using WinFileSearch.Data.Models;
+using WinFileSearch.UI.Services;
 using Timer = System.Timers.Timer;
 
 namespace WinFileSearch.UI.ViewModels;
@@ -11,6 +12,7 @@ namespace WinFileSearch.UI.ViewModels;
 public partial class SearchViewModel : ObservableObject, IDisposable
 {
     private readonly IFileSearchService _searchService;
+    private readonly ISearchHistoryService _historyService;
     private readonly Timer _debounceTimer;
     private const int DebounceDelayMs = 300;
 
@@ -30,18 +32,41 @@ public partial class SearchViewModel : ObservableObject, IDisposable
     private bool _showPreview;
 
     [ObservableProperty]
+    private bool _showHistory;
+
+    [ObservableProperty]
     private string _statusMessage = string.Empty;
 
     public ObservableCollection<FileEntry> SearchResults { get; } = new();
+    public ObservableCollection<string> SearchHistory { get; } = new();
 
-    public SearchViewModel(IFileSearchService searchService)
+    public SearchViewModel(IFileSearchService searchService, ISearchHistoryService historyService)
     {
         _searchService = searchService;
+        _historyService = historyService;
 
         // Initialize debounce timer
         _debounceTimer = new Timer(DebounceDelayMs);
         _debounceTimer.AutoReset = false;
         _debounceTimer.Elapsed += OnDebounceTimerElapsed;
+
+        // Load search history
+        LoadHistory();
+        _historyService.HistoryChanged += OnHistoryChanged;
+    }
+
+    private void OnHistoryChanged(object? sender, EventArgs e)
+    {
+        System.Windows.Application.Current?.Dispatcher.Invoke(LoadHistory);
+    }
+
+    private void LoadHistory()
+    {
+        SearchHistory.Clear();
+        foreach (var item in _historyService.GetHistory())
+        {
+            SearchHistory.Add(item);
+        }
     }
 
     private void OnDebounceTimerElapsed(object? sender, ElapsedEventArgs e)
@@ -61,12 +86,18 @@ public partial class SearchViewModel : ObservableObject, IDisposable
         if (value.Length >= 2)
         {
             StatusMessage = "Typing...";
+            ShowHistory = false;
             _debounceTimer.Start();
         }
         else if (string.IsNullOrEmpty(value))
         {
             SearchResults.Clear();
             StatusMessage = string.Empty;
+            ShowHistory = SearchHistory.Count > 0;
+        }
+        else
+        {
+            ShowHistory = SearchHistory.Count > 0;
         }
     }
 
@@ -91,12 +122,36 @@ public partial class SearchViewModel : ObservableObject, IDisposable
         await ExecuteSearchAsync();
     }
 
+    [RelayCommand]
+    private void SelectHistoryItem(string? query)
+    {
+        if (!string.IsNullOrEmpty(query))
+        {
+            ShowHistory = false;
+            SearchQuery = query;
+        }
+    }
+
+    [RelayCommand]
+    private void ClearHistory()
+    {
+        _historyService.ClearHistory();
+        ShowHistory = false;
+    }
+
+    [RelayCommand]
+    private void HideHistory()
+    {
+        ShowHistory = false;
+    }
+
     private async Task ExecuteSearchAsync()
     {
         if (string.IsNullOrWhiteSpace(SearchQuery))
             return;
 
         IsSearching = true;
+        ShowHistory = false;
         StatusMessage = "Searching...";
 
         try
@@ -117,6 +172,12 @@ public partial class SearchViewModel : ObservableObject, IDisposable
             }
 
             StatusMessage = $"{SearchResults.Count} files found";
+
+            // Add to history only if we got results
+            if (SearchResults.Count > 0)
+            {
+                _historyService.AddSearch(SearchQuery);
+            }
         }
         catch (Exception ex)
         {
@@ -177,6 +238,24 @@ public partial class SearchViewModel : ObservableObject, IDisposable
     }
 
     [RelayCommand]
+    private void CopyPath()
+    {
+        if (SelectedFile != null)
+        {
+            System.Windows.Clipboard.SetText(SelectedFile.FullPath);
+        }
+    }
+
+    [RelayCommand]
+    private void CopyFileName()
+    {
+        if (SelectedFile != null)
+        {
+            System.Windows.Clipboard.SetText(SelectedFile.FileName);
+        }
+    }
+
+    [RelayCommand]
     private void ClosePreview()
     {
         SelectedFile = null;
@@ -188,5 +267,6 @@ public partial class SearchViewModel : ObservableObject, IDisposable
         _debounceTimer.Stop();
         _debounceTimer.Elapsed -= OnDebounceTimerElapsed;
         _debounceTimer.Dispose();
+        _historyService.HistoryChanged -= OnHistoryChanged;
     }
 }

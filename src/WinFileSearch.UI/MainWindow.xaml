@@ -10,7 +10,17 @@
         Height="700" Width="1000"
         MinHeight="500" MinWidth="700"
         WindowStartupLocation="CenterScreen"
-        Background="{StaticResource PrimaryBackgroundBrush}">
+        Background="{StaticResource PrimaryBackgroundBrush}"
+        PreviewKeyDown="Window_PreviewKeyDown">
+
+    <!-- Keyboard Shortcuts -->
+    <Window.InputBindings>
+        <KeyBinding Key="F" Modifiers="Ctrl" Command="{Binding NavigateToSearchCommand}"/>
+        <KeyBinding Key="D1" Modifiers="Ctrl" Command="{Binding NavigateToHomeCommand}"/>
+        <KeyBinding Key="D2" Modifiers="Ctrl" Command="{Binding NavigateToSearchCommand}"/>
+        <KeyBinding Key="D3" Modifiers="Ctrl" Command="{Binding NavigateToRecentCommand}"/>
+        <KeyBinding Key="D4" Modifiers="Ctrl" Command="{Binding NavigateToSettingsCommand}"/>
+    </Window.InputBindings>
 
     <Grid>
         <Grid.RowDefinitions>

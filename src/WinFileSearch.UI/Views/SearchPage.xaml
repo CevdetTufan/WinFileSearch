@@ -15,6 +15,10 @@
         <converters:FileSizeConverter x:Key="FileSizeConverter"/>
         <converters:RelativeTimeConverter x:Key="RelativeTimeConverter"/>
         <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
+        <converters:ImagePreviewConverter x:Key="ImagePreviewConverter"/>
+        <converters:TextPreviewConverter x:Key="TextPreviewConverter"/>
+        <converters:IsImageFileConverter x:Key="IsImageFileConverter"/>
+        <converters:IsTextFileConverter x:Key="IsTextFileConverter"/>
     </Page.Resources>
 
     <Grid Margin="20">
@@ -48,26 +52,96 @@
 
         <!-- Search Box and Filters -->
         <StackPanel Grid.Row="1" Margin="0,0,0,16">
-            <!-- Search TextBox -->
-            <TextBox Style="{StaticResource SearchTextBoxStyle}"
-                     Text="{Binding SearchQuery, UpdateSourceTrigger=PropertyChanged}"
-                     Tag="Search files, folders, metadata..."
-                     Margin="0,0,0,12"/>
-            
+            <!-- Search TextBox with History Dropdown -->
+            <Grid>
+                <TextBox x:Name="SearchTextBox"
+                         Style="{StaticResource SearchTextBoxStyle}"
+                         Text="{Binding SearchQuery, UpdateSourceTrigger=PropertyChanged}"
+                         Tag="Search files, folders, metadata..."
+                         GotFocus="SearchTextBox_GotFocus"/>
+
+                <!-- Search History Popup -->
+                <Popup x:Name="HistoryPopup"
+                       PlacementTarget="{Binding ElementName=SearchTextBox}"
+                       Placement="Bottom"
+                       IsOpen="{Binding ShowHistory}"
+                       StaysOpen="False"
+                       AllowsTransparency="True"
+                       PopupAnimation="Fade">
+                    <Border Background="{StaticResource CardBackgroundBrush}"
+                            BorderBrush="{StaticResource BorderBrush}"
+                            BorderThickness="1"
+                            CornerRadius="8"
+                            Width="{Binding ActualWidth, ElementName=SearchTextBox}"
+                            MaxHeight="300">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="*"/>
+                            </Grid.RowDefinitions>
+
+                            <!-- Header -->
+                            <Grid Grid.Row="0" Margin="12,8">
+                                <TextBlock Text="Recent Searches"
+                                           FontSize="11"
+                                           FontWeight="SemiBold"
+                                           Foreground="{StaticResource SecondaryTextBrush}"/>
+                                <Button Content="Clear"
+                                        HorizontalAlignment="Right"
+                                        Background="Transparent"
+                                        Foreground="{StaticResource AccentBrush}"
+                                        BorderThickness="0"
+                                        FontSize="11"
+                                        Cursor="Hand"
+                                        Command="{Binding ClearHistoryCommand}"/>
+                            </Grid>
+
+                            <!-- History Items -->
+                            <ItemsControl Grid.Row="1" 
+                                          ItemsSource="{Binding SearchHistory}"
+                                          Margin="4,0,4,4">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <Button Background="Transparent"
+                                                BorderThickness="0"
+                                                HorizontalContentAlignment="Left"
+                                                Padding="12,8"
+                                                Cursor="Hand"
+                                                Command="{Binding DataContext.SelectHistoryItemCommand, RelativeSource={RelativeSource AncestorType=Page}}"
+                                                CommandParameter="{Binding}">
+                                            <StackPanel Orientation="Horizontal">
+                                                <Path Data="M12,20A8,8 0 0,0 20,12A8,8 0 0,0 12,4A8,8 0 0,0 4,12A8,8 0 0,0 12,20M12,2A10,10 0 0,1 22,12A10,10 0 0,1 12,22C6.47,22 2,17.5 2,12A10,10 0 0,1 12,2M12.5,7V12.25L17,14.92L16.25,16.15L11,13V7H12.5Z"
+                                                      Fill="{StaticResource SecondaryTextBrush}"
+                                                      Width="14" Height="14"
+                                                      Stretch="Uniform"
+                                                      Margin="0,0,10,0"/>
+                                                <TextBlock Text="{Binding}"
+                                                           Foreground="{StaticResource PrimaryTextBrush}"
+                                                           FontSize="13"/>
+                                            </StackPanel>
+                                        </Button>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </Grid>
+                    </Border>
+                </Popup>
+            </Grid>
+
             <!-- Category Filters -->
-            <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
+            <StackPanel Orientation="Horizontal" Margin="0,12,0,8">
                 <ToggleButton Content="📄 All Files" 
                               Style="{StaticResource FilterButtonStyle}"
                               IsChecked="{Binding SelectedCategory, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter=null}"
                               Command="{Binding SetCategoryAllCommand}"
                               Margin="0,0,8,0"/>
-                
+
                 <ToggleButton Content="📝 Documents" 
                               Style="{StaticResource FilterButtonStyle}"
                               Command="{Binding SetCategoryDocumentsCommand}"
                               Margin="0,0,8,0"/>
-                
-                <ToggleButton Content="🖼️ Images" 
+
+                <ToggleButton Content="🖼️ Images"
                               Style="{StaticResource FilterButtonStyle}"
                               Command="{Binding SetCategoryImagesCommand}"
                               Margin="0,0,8,0"/>
@@ -90,6 +164,24 @@
                      Style="{StaticResource FileListBoxStyle}"
                      ItemsSource="{Binding SearchResults}"
                      SelectedItem="{Binding SelectedFile}">
+                <ListBox.ContextMenu>
+                    <ContextMenu Background="{StaticResource CardBackgroundBrush}"
+                                 BorderBrush="{StaticResource BorderBrush}">
+                        <MenuItem Header="Open File" 
+                                  Command="{Binding OpenSelectedFileCommand}"
+                                  Foreground="{StaticResource PrimaryTextBrush}"/>
+                        <MenuItem Header="Open File Location" 
+                                  Command="{Binding OpenFileLocationCommand}"
+                                  Foreground="{StaticResource PrimaryTextBrush}"/>
+                        <Separator Background="{StaticResource BorderBrush}"/>
+                        <MenuItem Header="Copy Full Path" 
+                                  Command="{Binding CopyPathCommand}"
+                                  Foreground="{StaticResource PrimaryTextBrush}"/>
+                        <MenuItem Header="Copy File Name" 
+                                  Command="{Binding CopyFileNameCommand}"
+                                  Foreground="{StaticResource PrimaryTextBrush}"/>
+                    </ContextMenu>
+                </ListBox.ContextMenu>
                 <ListBox.ItemTemplate>
                     <DataTemplate>
                         <Grid Margin="4,8">
@@ -199,23 +291,78 @@
                                    Foreground="{StaticResource PrimaryTextBrush}"
                                    VerticalAlignment="Center"
                                    Margin="12,0,0,0"
-                                   TextWrapping="Wrap"/>
+                                   TextWrapping="Wrap"
+                                   MaxWidth="200"/>
                     </StackPanel>
 
-                    <!-- File Details -->
-                    <StackPanel Grid.Row="2">
-                        <TextBlock Text="TYPE" FontSize="10" Foreground="{StaticResource SecondaryTextBrush}" Margin="0,0,0,2"/>
-                        <TextBlock Text="{Binding SelectedFile.Extension}" FontSize="13" Foreground="{StaticResource PrimaryTextBrush}" Margin="0,0,0,12"/>
+                    <!-- File Details with Preview -->
+                    <ScrollViewer Grid.Row="2" VerticalScrollBarVisibility="Auto">
+                        <StackPanel>
+                            <!-- Image Preview -->
+                            <Border Margin="0,0,0,12"
+                                    CornerRadius="8"
+                                    Background="{StaticResource SecondaryBackgroundBrush}"
+                                    Visibility="{Binding SelectedFile.FullPath, Converter={StaticResource IsImageFileConverter}, ConverterParameter=ToVisibility}">
+                                <Border.Style>
+                                    <Style TargetType="Border">
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding SelectedFile.FullPath, Converter={StaticResource IsImageFileConverter}}" Value="True">
+                                                <Setter Property="Visibility" Value="Visible"/>
+                                            </DataTrigger>
+                                            <DataTrigger Binding="{Binding SelectedFile.FullPath, Converter={StaticResource IsImageFileConverter}}" Value="False">
+                                                <Setter Property="Visibility" Value="Collapsed"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Border.Style>
+                                <Image Source="{Binding SelectedFile.FullPath, Converter={StaticResource ImagePreviewConverter}}"
+                                       MaxHeight="150"
+                                       Stretch="Uniform"
+                                       Margin="8"/>
+                            </Border>
 
-                        <TextBlock Text="SIZE" FontSize="10" Foreground="{StaticResource SecondaryTextBrush}" Margin="0,0,0,2"/>
-                        <TextBlock Text="{Binding SelectedFile.Size, Converter={StaticResource FileSizeConverter}}" FontSize="13" Foreground="{StaticResource PrimaryTextBrush}" Margin="0,0,0,12"/>
+                            <!-- Text Preview -->
+                            <Border Margin="0,0,0,12"
+                                    Padding="10"
+                                    CornerRadius="8"
+                                    Background="{StaticResource SecondaryBackgroundBrush}">
+                                <Border.Style>
+                                    <Style TargetType="Border">
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding SelectedFile.FullPath, Converter={StaticResource IsTextFileConverter}}" Value="True">
+                                                <Setter Property="Visibility" Value="Visible"/>
+                                            </DataTrigger>
+                                            <DataTrigger Binding="{Binding SelectedFile.FullPath, Converter={StaticResource IsTextFileConverter}}" Value="False">
+                                                <Setter Property="Visibility" Value="Collapsed"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Border.Style>
+                                <StackPanel>
+                                    <TextBlock Text="PREVIEW" FontSize="10" Foreground="{StaticResource SecondaryTextBrush}" Margin="0,0,0,6"/>
+                                    <TextBlock Text="{Binding SelectedFile.FullPath, Converter={StaticResource TextPreviewConverter}}"
+                                               FontSize="11"
+                                               FontFamily="Consolas"
+                                               Foreground="{StaticResource PrimaryTextBrush}"
+                                               TextWrapping="Wrap"
+                                               MaxHeight="120"/>
+                                </StackPanel>
+                            </Border>
 
-                        <TextBlock Text="MODIFIED" FontSize="10" Foreground="{StaticResource SecondaryTextBrush}" Margin="0,0,0,2"/>
-                        <TextBlock Text="{Binding SelectedFile.ModifiedAt, Converter={StaticResource RelativeTimeConverter}}" FontSize="13" Foreground="{StaticResource PrimaryTextBrush}" Margin="0,0,0,12"/>
+                            <!-- File Info -->
+                            <TextBlock Text="TYPE" FontSize="10" Foreground="{StaticResource SecondaryTextBrush}" Margin="0,0,0,2"/>
+                            <TextBlock Text="{Binding SelectedFile.Extension}" FontSize="13" Foreground="{StaticResource PrimaryTextBrush}" Margin="0,0,0,12"/>
 
-                        <TextBlock Text="LOCATION" FontSize="10" Foreground="{StaticResource SecondaryTextBrush}" Margin="0,0,0,2"/>
-                        <TextBlock Text="{Binding SelectedFile.Directory}" FontSize="12" Foreground="{StaticResource PrimaryTextBrush}" TextWrapping="Wrap"/>
-                    </StackPanel>
+                            <TextBlock Text="SIZE" FontSize="10" Foreground="{StaticResource SecondaryTextBrush}" Margin="0,0,0,2"/>
+                            <TextBlock Text="{Binding SelectedFile.Size, Converter={StaticResource FileSizeConverter}}" FontSize="13" Foreground="{StaticResource PrimaryTextBrush}" Margin="0,0,0,12"/>
+
+                            <TextBlock Text="MODIFIED" FontSize="10" Foreground="{StaticResource SecondaryTextBrush}" Margin="0,0,0,2"/>
+                            <TextBlock Text="{Binding SelectedFile.ModifiedAt, Converter={StaticResource RelativeTimeConverter}}" FontSize="13" Foreground="{StaticResource PrimaryTextBrush}" Margin="0,0,0,12"/>
+
+                            <TextBlock Text="LOCATION" FontSize="10" Foreground="{StaticResource SecondaryTextBrush}" Margin="0,0,0,2"/>
+                            <TextBlock Text="{Binding SelectedFile.Directory}" FontSize="12" Foreground="{StaticResource PrimaryTextBrush}" TextWrapping="Wrap"/>
+                        </StackPanel>
+                    </ScrollViewer>
 
                     <!-- Actions -->
                     <StackPanel Grid.Row="3" Margin="0,16,0,0">

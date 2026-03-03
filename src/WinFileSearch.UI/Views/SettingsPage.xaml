@@ -113,6 +113,37 @@
                         Command="{Binding AddFolderCommand}"/>
             </Grid>
 
+            <!-- Drag & Drop Zone -->
+            <Border x:Name="DropZone"
+                    Style="{StaticResource CardPanelStyle}"
+                    BorderThickness="2"
+                    BorderBrush="{StaticResource SecondaryBackgroundBrush}"
+                    Margin="0,0,0,12"
+                    MinHeight="100"
+                    AllowDrop="True"
+                    DragEnter="DropZone_DragEnter"
+                    DragLeave="DropZone_DragLeave"
+                    Drop="DropZone_Drop">
+                <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Margin="20">
+                    <Path Data="M10,4H4C2.89,4 2,4.89 2,6V18A2,2 0 0,0 4,20H20A2,2 0 0,0 22,18V8C22,6.89 21.1,6 20,6H12L10,4Z"
+                          Fill="{StaticResource SecondaryTextBrush}"
+                          Width="32" Height="32"
+                          Stretch="Uniform"
+                          HorizontalAlignment="Center"
+                          Margin="0,0,0,12"/>
+                    <TextBlock Text="Drag and drop folders here"
+                               FontSize="14"
+                               Foreground="{StaticResource SecondaryTextBrush}"
+                               HorizontalAlignment="Center"/>
+                    <TextBlock Text="or use the 'Add Folder' button above"
+                               FontSize="12"
+                               Foreground="{StaticResource SecondaryTextBrush}"
+                               HorizontalAlignment="Center"
+                               Margin="0,4,0,0"
+                               Opacity="0.7"/>
+                </StackPanel>
+            </Border>
+
             <ItemsControl ItemsSource="{Binding IncludedFolders}" Margin="0,0,0,24">
                 <ItemsControl.ItemTemplate>
                     <DataTemplate>

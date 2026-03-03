@@ -1,6 +1,8 @@
 using System.Globalization;
+using System.IO;
 using System.Windows.Data;
 using System.Windows.Media;
+using System.Windows.Media.Imaging;
 using WinFileSearch.Data.Models;
 using Application = System.Windows.Application;
 using Visibility = System.Windows.Visibility;
@@ -176,6 +178,169 @@ public class SearchHighlightConverter : IMultiValueConverter
     }
 
     public object[] ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture)
+    {
+        throw new NotImplementedException();
+    }
+}
+
+/// <summary>
+/// Converts file path to image preview (thumbnail) for image files
+/// </summary>
+public class ImagePreviewConverter : IValueConverter
+{
+    private static readonly HashSet<string> ImageExtensions = new(StringComparer.OrdinalIgnoreCase)
+    {
+        ".jpg", ".jpeg", ".png", ".gif", ".bmp", ".webp", ".ico", ".tiff", ".tif"
+    };
+
+    public object? Convert(object value, Type targetType, object parameter, CultureInfo culture)
+    {
+        if (value is not string filePath || string.IsNullOrEmpty(filePath))
+            return null;
+
+        try
+        {
+            var extension = Path.GetExtension(filePath);
+            if (!ImageExtensions.Contains(extension))
+                return null;
+
+            if (!File.Exists(filePath))
+                return null;
+
+            // Create thumbnail for performance
+            var bitmap = new BitmapImage();
+            bitmap.BeginInit();
+            bitmap.CacheOption = BitmapCacheOption.OnLoad;
+            bitmap.DecodePixelWidth = 250; // Thumbnail size
+            bitmap.UriSource = new Uri(filePath);
+            bitmap.EndInit();
+            bitmap.Freeze(); // For cross-thread access
+
+            return bitmap;
+        }
+        catch
+        {
+            return null;
+        }
+    }
+
+    public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+    {
+        throw new NotImplementedException();
+    }
+}
+
+/// <summary>
+/// Converts file path to text preview content for text files
+/// </summary>
+public class TextPreviewConverter : IValueConverter
+{
+    private static readonly HashSet<string> TextExtensions = new(StringComparer.OrdinalIgnoreCase)
+    {
+        ".txt", ".md", ".json", ".xml", ".csv", ".log", ".ini", ".cfg", ".yaml", ".yml",
+        ".cs", ".js", ".ts", ".html", ".css", ".py", ".java", ".cpp", ".c", ".h",
+        ".sql", ".sh", ".bat", ".ps1", ".xaml", ".config", ".csproj", ".sln"
+    };
+
+    private const int MaxPreviewLength = 500;
+    private const int MaxPreviewLines = 15;
+
+    public object? Convert(object value, Type targetType, object parameter, CultureInfo culture)
+    {
+        if (value is not string filePath || string.IsNullOrEmpty(filePath))
+            return null;
+
+        try
+        {
+            var extension = Path.GetExtension(filePath);
+            if (!TextExtensions.Contains(extension))
+                return null;
+
+            if (!File.Exists(filePath))
+                return null;
+
+            // Read limited content for preview
+            using var reader = new StreamReader(filePath);
+            var content = new System.Text.StringBuilder();
+            int lineCount = 0;
+
+            while (!reader.EndOfStream && lineCount < MaxPreviewLines && content.Length < MaxPreviewLength)
+            {
+                var line = reader.ReadLine();
+                if (line != null)
+                {
+                    content.AppendLine(line);
+                    lineCount++;
+                }
+            }
+
+            var result = content.ToString();
+            if (result.Length > MaxPreviewLength)
+                result = result[..MaxPreviewLength] + "...";
+            else if (!reader.EndOfStream)
+                result += "...";
+
+            return string.IsNullOrWhiteSpace(result) ? "(Empty file)" : result;
+        }
+        catch
+        {
+            return "(Unable to read file)";
+        }
+    }
+
+    public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+    {
+        throw new NotImplementedException();
+    }
+}
+
+/// <summary>
+/// Checks if file is an image based on extension
+/// </summary>
+public class IsImageFileConverter : IValueConverter
+{
+    private static readonly HashSet<string> ImageExtensions = new(StringComparer.OrdinalIgnoreCase)
+    {
+        ".jpg", ".jpeg", ".png", ".gif", ".bmp", ".webp", ".ico", ".tiff", ".tif"
+    };
+
+    public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+    {
+        if (value is not string filePath || string.IsNullOrEmpty(filePath))
+            return false;
+
+        var extension = Path.GetExtension(filePath);
+        return ImageExtensions.Contains(extension);
+    }
+
+    public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+    {
+        throw new NotImplementedException();
+    }
+}
+
+/// <summary>
+/// Checks if file is a text file based on extension
+/// </summary>
+public class IsTextFileConverter : IValueConverter
+{
+    private static readonly HashSet<string> TextExtensions = new(StringComparer.OrdinalIgnoreCase)
+    {
+        ".txt", ".md", ".json", ".xml", ".csv", ".log", ".ini", ".cfg", ".yaml", ".yml",
+        ".cs", ".js", ".ts", ".html", ".css", ".py", ".java", ".cpp", ".c", ".h",
+        ".sql", ".sh", ".bat", ".ps1", ".xaml", ".config", ".csproj", ".sln"
+    };
+
+    public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+    {
+        if (value is not string filePath || string.IsNullOrEmpty(filePath))
+            return false;
+
+        var extension = Path.GetExtension(filePath);
+        return TextExtensions.Contains(extension);
+    }
+
+    public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
     {
         throw new NotImplementedException();
     }
