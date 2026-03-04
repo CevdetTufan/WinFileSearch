@@ -142,8 +142,9 @@ public partial class SettingsViewModel : ObservableObject
 
     private async Task LoadDataAsync()
     {
-        var includedFolders = await _indexService.GetIncludedFoldersAsync();
-        var excludedFolders = await _indexService.GetExcludedFoldersAsync();
+        // Run database operations on background thread to prevent UI freeze
+        var includedFolders = await Task.Run(() => _indexService.GetIncludedFoldersAsync());
+        var excludedFolders = await Task.Run(() => _indexService.GetExcludedFoldersAsync());
 
         IncludedFolders.Clear();
         foreach (var folder in includedFolders)
@@ -157,8 +158,8 @@ public partial class SettingsViewModel : ObservableObject
             ExcludedFolders.Add(folder);
         }
 
-        TotalFilesIndexed = await _indexService.GetTotalFileCountAsync();
-        LastIndexed = await _indexService.GetLastIndexTimeAsync();
+        TotalFilesIndexed = await Task.Run(() => _indexService.GetTotalFileCountAsync());
+        LastIndexed = await Task.Run(() => _indexService.GetLastIndexTimeAsync());
     }
 
     [RelayCommand]
@@ -192,7 +193,8 @@ public partial class SettingsViewModel : ObservableObject
             return;
         }
 
-        var folder = await _indexService.AddFolderAsync(path);
+        // Run on background thread to prevent UI freeze
+        var folder = await Task.Run(() => _indexService.AddFolderAsync(path));
         IncludedFolders.Add(folder);
 
         // Start indexing the new folder
@@ -204,9 +206,10 @@ public partial class SettingsViewModel : ObservableObject
     {
         if (folder == null) return;
 
-        await _indexService.RemoveFolderAsync(folder.Id);
+        // Run on background thread to prevent UI freeze during deletion
+        await Task.Run(() => _indexService.RemoveFolderAsync(folder.Id));
         IncludedFolders.Remove(folder);
-        TotalFilesIndexed = await _indexService.GetTotalFileCountAsync();
+        TotalFilesIndexed = await Task.Run(() => _indexService.GetTotalFileCountAsync());
     }
 
     [RelayCommand]
@@ -220,7 +223,8 @@ public partial class SettingsViewModel : ObservableObject
 
         if (dialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
         {
-            await _indexService.AddExcludedFolderAsync(dialog.SelectedPath);
+            // Run on background thread to prevent UI freeze
+            await Task.Run(() => _indexService.AddExcludedFolderAsync(dialog.SelectedPath));
             await LoadDataAsync();
         }
     }
@@ -230,7 +234,8 @@ public partial class SettingsViewModel : ObservableObject
     {
         if (folder == null) return;
 
-        await _indexService.RemoveExcludedFolderAsync(folder.Id);
+        // Run on background thread to prevent UI freeze
+        await Task.Run(() => _indexService.RemoveExcludedFolderAsync(folder.Id));
         ExcludedFolders.Remove(folder);
     }
 
