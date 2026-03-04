@@ -1,7 +1,7 @@
 # WinFileSearch
 
 <p align="center">
-  <img src="docs/logo.png" alt="WinFileSearch Logo" width="128"/>
+  <img src="src/WinFileSearch.UI/Resources/app.ico" alt="WinFileSearch Logo" width="128"/>
 </p>
 
 <p align="center">
