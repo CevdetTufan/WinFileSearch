@@ -9,6 +9,7 @@ public class FileIndexService : IFileIndexService
     private readonly IFileRepository _repository;
     private readonly FileSearchDbContext _dbContext;
     private const int BatchSize = 500;
+    private const int ProgressReportInterval = 100; // Report progress every N files
 
     public FileIndexService(IFileRepository repository, FileSearchDbContext dbContext)
     {
@@ -41,29 +42,39 @@ public class FileIndexService : IFileIndexService
             CurrentFolder = folderPath
         };
 
-        // Count total files first
-        var allFiles = new List<string>();
-        try
+        // Use streaming enumeration to avoid loading all files into memory
+        var fileEnumerable = Directory.EnumerateFiles(folderPath, "*", new EnumerationOptions
         {
-            allFiles = Directory.EnumerateFiles(folderPath, "*", new EnumerationOptions
-            {
-                IgnoreInaccessible = true,
-                RecurseSubdirectories = true
-            }).ToList();
-        }
-        catch (Exception)
-        {
-            // Ignore access errors
-        }
+            IgnoreInaccessible = true,
+            RecurseSubdirectories = true
+        });
 
-        progressInfo.TotalFiles = allFiles.Count;
+        // Estimate total (quick count using parallel enumeration with timeout)
+        progressInfo.TotalFiles = await Task.Run(() => 
+        {
+            try
+            {
+                return fileEnumerable.Take(100000).Count(); // Limit to prevent long delays
+            }
+            catch
+            {
+                return 0;
+            }
+        }, cancellationToken);
+
         progress?.Report(progressInfo);
 
         var batch = new List<FileEntry>();
         long totalSize = 0;
         int fileCount = 0;
+        int progressCounter = 0;
 
-        foreach (var filePath in allFiles)
+        // Re-enumerate for actual processing
+        foreach (var filePath in Directory.EnumerateFiles(folderPath, "*", new EnumerationOptions
+        {
+            IgnoreInaccessible = true,
+            RecurseSubdirectories = true
+        }))
         {
             if (cancellationToken.IsCancellationRequested)
             {
@@ -100,6 +111,7 @@ public class FileIndexService : IFileIndexService
                 batch.Add(fileEntry);
                 totalSize += fileInfo.Length;
                 fileCount++;
+                progressCounter++;
 
                 progressInfo.ProcessedFiles++;
                 progressInfo.CurrentFile = fileInfo.Name;
@@ -109,6 +121,14 @@ public class FileIndexService : IFileIndexService
                 {
                     await _repository.InsertFilesAsync(batch);
                     batch.Clear();
+                    progress?.Report(progressInfo);
+
+                    // Yield to prevent UI freeze
+                    await Task.Delay(1, cancellationToken);
+                }
+                else if (progressCounter % ProgressReportInterval == 0)
+                {
+                    // Report progress periodically for UI responsiveness
                     progress?.Report(progressInfo);
                 }
             }

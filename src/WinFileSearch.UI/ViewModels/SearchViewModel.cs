@@ -22,7 +22,17 @@ public partial class SearchViewModel : ObservableObject, IDisposable
     private string _searchQuery = string.Empty;
 
     [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(IsAllSelected))]
+    [NotifyPropertyChangedFor(nameof(IsDocumentsSelected))]
+    [NotifyPropertyChangedFor(nameof(IsImagesSelected))]
+    [NotifyPropertyChangedFor(nameof(IsMediaSelected))]
     private FileCategory? _selectedCategory;
+
+    // Computed properties for filter toggle synchronization
+    public bool IsAllSelected => _selectedCategory == null;
+    public bool IsDocumentsSelected => _selectedCategory == FileCategory.Document;
+    public bool IsImagesSelected => _selectedCategory == FileCategory.Image;
+    public bool IsMediaSelected => _selectedCategory == FileCategory.Media;
 
     [ObservableProperty]
     private FileEntry? _selectedFile;
@@ -41,6 +51,12 @@ public partial class SearchViewModel : ObservableObject, IDisposable
 
     [ObservableProperty]
     private bool _isSelectedFileFavorite;
+
+    [ObservableProperty]
+    private bool _showEmptyState;
+
+    [ObservableProperty]
+    private bool _hasSearched;
 
     public ObservableCollection<FileEntry> SearchResults { get; } = new();
     public ObservableCollection<string> SearchHistory { get; } = new();
@@ -114,6 +130,8 @@ public partial class SearchViewModel : ObservableObject, IDisposable
             SearchResults.Clear();
             StatusMessage = string.Empty;
             ShowHistory = SearchHistory.Count > 0;
+            ShowEmptyState = false;
+            HasSearched = false;
         }
         else
         {
@@ -173,6 +191,7 @@ public partial class SearchViewModel : ObservableObject, IDisposable
 
         IsSearching = true;
         ShowHistory = false;
+        ShowEmptyState = false;
         StatusMessage = "Searching...";
 
         var startTime = DateTime.Now;
@@ -199,7 +218,11 @@ public partial class SearchViewModel : ObservableObject, IDisposable
             var duration = DateTime.Now - startTime;
             _loggingService.LogPerformance($"Search '{SearchQuery}'", duration);
 
-            StatusMessage = $"{SearchResults.Count} files found";
+            HasSearched = true;
+            ShowEmptyState = SearchResults.Count == 0;
+            StatusMessage = SearchResults.Count == 0 
+                ? "No files found" 
+                : $"{SearchResults.Count} files found";
 
             // Add to history only if we got results
             if (SearchResults.Count > 0)
@@ -211,6 +234,7 @@ public partial class SearchViewModel : ObservableObject, IDisposable
         {
             _loggingService.LogError("Search failed for query: {Query}", ex, SearchQuery);
             StatusMessage = $"Search error: {ex.Message}";
+            ShowEmptyState = true;
         }
         finally
         {
