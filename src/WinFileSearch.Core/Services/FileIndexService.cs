@@ -4,12 +4,18 @@ using WinFileSearch.Data.Repositories;
 
 namespace WinFileSearch.Core.Services;
 
+/// <summary>
+/// High-performance file indexing service with batch processing and optimized I/O.
+/// </summary>
 public class FileIndexService : IFileIndexService
 {
     private readonly IFileRepository _repository;
     private readonly FileSearchDbContext _dbContext;
-    private const int BatchSize = 500;
-    private const int ProgressReportInterval = 100; // Report progress every N files
+
+    // Optimized constants for better throughput
+    private const int BatchSize = 1000;              // Increased from 500 for fewer DB transactions
+    private const int ProgressReportInterval = 200;   // Report less frequently for better performance
+    private const int UiYieldInterval = 2000;         // Yield to UI every N files
 
     public FileIndexService(IFileRepository repository, FileSearchDbContext dbContext)
     {
@@ -123,13 +129,19 @@ public class FileIndexService : IFileIndexService
                     batch.Clear();
                     progress?.Report(progressInfo);
 
-                    // Yield to prevent UI freeze
+                    // Yield to UI thread to prevent freezing
                     await Task.Delay(1, cancellationToken);
                 }
                 else if (progressCounter % ProgressReportInterval == 0)
                 {
                     // Report progress periodically for UI responsiveness
                     progress?.Report(progressInfo);
+
+                    // Yield to UI less frequently for better throughput
+                    if (progressCounter % UiYieldInterval == 0)
+                    {
+                        await Task.Yield();
+                    }
                 }
             }
             catch (Exception)

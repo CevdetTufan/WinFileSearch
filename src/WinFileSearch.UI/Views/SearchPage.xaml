@@ -188,11 +188,15 @@
                 </StackPanel>
             </Border>
 
-            <!-- File List -->
+            <!-- File List with UI Virtualization for Performance -->
             <ListBox Grid.Column="0"
                      Style="{StaticResource FileListBoxStyle}"
                      ItemsSource="{Binding SearchResults}"
-                     SelectedItem="{Binding SelectedFile}">
+                     SelectedItem="{Binding SelectedFile}"
+                     VirtualizingStackPanel.IsVirtualizing="True"
+                     VirtualizingStackPanel.VirtualizationMode="Recycling"
+                     VirtualizingStackPanel.ScrollUnit="Pixel"
+                     ScrollViewer.IsDeferredScrollingEnabled="True">
                 <ListBox.ContextMenu>
                     <ContextMenu Background="{StaticResource CardBackgroundBrush}"
                                  BorderBrush="{StaticResource BorderBrush}">
