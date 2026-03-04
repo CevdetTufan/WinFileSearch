@@ -266,7 +266,11 @@ public partial class SettingsViewModel : ObservableObject
 
         try
         {
-            await _indexService.RebuildIndexAsync(progress, _indexingCts.Token);
+            // Run indexing on background thread to prevent UI freeze
+            await Task.Run(async () =>
+            {
+                await _indexService.RebuildIndexAsync(progress, _indexingCts.Token);
+            }, _indexingCts.Token);
             await LoadDataAsync();
         }
         catch (OperationCanceledException)
@@ -300,7 +304,11 @@ public partial class SettingsViewModel : ObservableObject
 
         try
         {
-            await _indexService.IndexFolderAsync(folderPath, progress, _indexingCts.Token);
+            // Run indexing on background thread to prevent UI freeze
+            await Task.Run(async () =>
+            {
+                await _indexService.IndexFolderAsync(folderPath, progress, _indexingCts.Token);
+            }, _indexingCts.Token);
             await LoadDataAsync();
         }
         catch (OperationCanceledException)
