@@ -15,6 +15,21 @@
     <ApplicationIcon>Resources\app.ico</ApplicationIcon>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <NoWarn>$(NoWarn);CS1591</NoWarn>
+
+    <!-- Version Info -->
+    <Version>1.0.0</Version>
+    <AssemblyVersion>1.0.0.0</AssemblyVersion>
+    <FileVersion>1.0.0.0</FileVersion>
+    <InformationalVersion>1.0.0-beta.1</InformationalVersion>
+
+    <!-- Assembly Info -->
+    <Product>WinFileSearch</Product>
+    <Company>CevdetTufan</Company>
+    <Authors>Cevdet Tufan</Authors>
+    <Description>Fast file search application for Windows with SQLite FTS5</Description>
+    <Copyright>Copyright © 2024 Cevdet Tufan</Copyright>
+    <RepositoryUrl>https://github.com/CevdetTufan/WinFileSearch</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
   </PropertyGroup>
 
   <ItemGroup>

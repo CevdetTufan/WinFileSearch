@@ -1,5 +1,6 @@
 ﻿using System.Windows;
 using Microsoft.Extensions.DependencyInjection;
+using WinFileSearch.Core.Interfaces;
 using WinFileSearch.Core.Services;
 using WinFileSearch.Data;
 using WinFileSearch.Data.Repositories;
@@ -36,6 +37,7 @@ public partial class App : System.Windows.Application
         services.AddSingleton<IFileIndexService, FileIndexService>();
         services.AddSingleton<IFileSearchService, FileSearchService>();
         services.AddSingleton<IFileWatcherService, FileWatcherService>();
+        services.AddSingleton<IUpdateService, UpdateService>();
 
         // UI Services
         services.AddSingleton<ILoggingService, LoggingService>();
@@ -47,7 +49,6 @@ public partial class App : System.Windows.Application
         services.AddSingleton<IFavoritesService, FavoritesService>();
         services.AddSingleton<ISystemTrayService, SystemTrayService>();
         services.AddSingleton<IGlobalHotkeyService, GlobalHotkeyService>();
-        services.AddSingleton<ISettingsService, SettingsService>();
         services.AddSingleton<IStartupService, StartupService>();
 
         // ViewModels
@@ -108,6 +109,32 @@ public partial class App : System.Windows.Application
             var navigationService = _serviceProvider.GetRequiredService<INavigationService>();
             navigationService.NavigateToSearch();
         };
+
+        // Check for updates in background
+        _ = CheckForUpdatesAsync(loggingService);
+    }
+
+    private async Task CheckForUpdatesAsync(ILoggingService loggingService)
+    {
+        try
+        {
+            await Task.Delay(5000); // Wait 5 seconds after startup
+
+            var updateService = _serviceProvider.GetRequiredService<IUpdateService>();
+            var updateInfo = await updateService.CheckForUpdateAsync();
+
+            if (updateInfo != null)
+            {
+                loggingService.LogInfo($"Update available: v{updateInfo.Version}");
+
+                // Store update info for SettingsPage to display
+                System.Windows.Application.Current.Properties["UpdateAvailable"] = updateInfo;
+            }
+        }
+        catch (Exception ex)
+        {
+            loggingService.LogError("Failed to check for updates", ex);
+        }
     }
 
     protected override void OnExit(ExitEventArgs e)

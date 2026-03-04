@@ -1,7 +1,8 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using Microsoft.Win32;
 using System.Collections.ObjectModel;
+using WinFileSearch.Core.Interfaces;
+using WinFileSearch.Core.Models;
 using WinFileSearch.Core.Services;
 using WinFileSearch.Data.Models;
 using WinFileSearch.UI.Services;
@@ -21,6 +22,7 @@ public partial class SettingsViewModel : ObservableObject
     private readonly ISettingsService _settingsService;
     private readonly IPerformanceMetricsService _metricsService;
     private readonly ILoggingService _loggingService;
+    private readonly IUpdateService _updateService;
     private CancellationTokenSource? _indexingCts;
 
     [ObservableProperty]
@@ -66,6 +68,27 @@ public partial class SettingsViewModel : ObservableObject
     [ObservableProperty]
     private string _selectedLanguage = "en";
 
+    // Update properties
+    [ObservableProperty]
+    private bool _isUpdateAvailable;
+
+    [ObservableProperty]
+    private string _currentVersion = string.Empty;
+
+    [ObservableProperty]
+    private string _latestVersion = string.Empty;
+
+    [ObservableProperty]
+    private string _updateReleaseNotes = string.Empty;
+
+    [ObservableProperty]
+    private bool _isDownloadingUpdate;
+
+    [ObservableProperty]
+    private int _downloadProgress;
+
+    private UpdateInfo? _updateInfo;
+
     public ObservableCollection<IndexedFolder> IncludedFolders { get; } = new();
     public ObservableCollection<IndexedFolder> ExcludedFolders { get; } = new();
     public ObservableCollection<LanguageOption> AvailableLanguages { get; } = new()
@@ -74,22 +97,31 @@ public partial class SettingsViewModel : ObservableObject
         new LanguageOption { Code = "tr", Name = "Türkçe" }
     };
 
-    public SettingsViewModel(IFileIndexService indexService, IStartupService startupService, ISettingsService settingsService, IPerformanceMetricsService metricsService, ILoggingService loggingService)
+    public SettingsViewModel(
+        IFileIndexService indexService, 
+        IStartupService startupService, 
+        ISettingsService settingsService, 
+        IPerformanceMetricsService metricsService, 
+        ILoggingService loggingService,
+        IUpdateService updateService)
     {
         _indexService = indexService;
         _startupService = startupService;
         _settingsService = settingsService;
         _metricsService = metricsService;
         _loggingService = loggingService;
+        _updateService = updateService;
 
         // Load settings
         StartWithWindows = _startupService.IsStartupEnabled;
         MinimizeToTray = _settingsService.Settings.MinimizeToTray;
         BackgroundIndexingEnabled = _settingsService.Settings.BackgroundIndexing;
         LogFilePath = _loggingService.GetLogFilePath();
+        CurrentVersion = $"v{_updateService.CurrentVersion}";
 
         _ = LoadDataAsync();
         RefreshMetrics();
+        _ = CheckForUpdatesAsync();
     }
 
     [RelayCommand]
@@ -332,4 +364,77 @@ public partial class SettingsViewModel : ObservableObject
     {
         _indexingCts?.Cancel();
     }
+
+    #region Update Methods
+
+    [RelayCommand]
+    private async Task CheckForUpdatesAsync()
+    {
+        try
+        {
+            // Check if update info was already fetched at startup
+            if (System.Windows.Application.Current.Properties["UpdateAvailable"] is UpdateInfo cachedUpdate)
+            {
+                _updateInfo = cachedUpdate;
+                IsUpdateAvailable = true;
+                LatestVersion = $"v{cachedUpdate.Version}";
+                UpdateReleaseNotes = cachedUpdate.ReleaseNotes;
+                System.Windows.Application.Current.Properties.Remove("UpdateAvailable");
+                return;
+            }
+
+            var updateInfo = await Task.Run(() => _updateService.CheckForUpdateAsync());
+
+            if (updateInfo != null)
+            {
+                _updateInfo = updateInfo;
+                IsUpdateAvailable = true;
+                LatestVersion = $"v{updateInfo.Version}";
+                UpdateReleaseNotes = updateInfo.ReleaseNotes;
+            }
+            else
+            {
+                IsUpdateAvailable = false;
+            }
+        }
+        catch
+        {
+            IsUpdateAvailable = false;
+        }
+    }
+
+    [RelayCommand]
+    private void OpenReleasePage()
+    {
+        if (_updateInfo != null)
+        {
+            _updateService.OpenReleasePage(_updateInfo.ReleasePageUrl);
+        }
+    }
+
+    [RelayCommand]
+    private async Task DownloadAndInstallUpdateAsync()
+    {
+        if (_updateInfo == null || string.IsNullOrEmpty(_updateInfo.DownloadUrl))
+            return;
+
+        try
+        {
+            IsDownloadingUpdate = true;
+            DownloadProgress = 0;
+
+            var progress = new Progress<int>(p => DownloadProgress = p);
+            await _updateService.DownloadAndInstallAsync(_updateInfo.DownloadUrl, progress);
+        }
+        catch (Exception ex)
+        {
+            _loggingService.LogError("Failed to download update", ex);
+            IsDownloadingUpdate = false;
+
+            // Show error and offer to open release page
+            _updateService.OpenReleasePage(_updateInfo.ReleasePageUrl);
+        }
+    }
+
+    #endregion
 }
