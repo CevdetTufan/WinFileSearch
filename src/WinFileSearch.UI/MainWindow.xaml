@@ -11,6 +11,7 @@
         MinHeight="500" MinWidth="700"
         WindowStartupLocation="CenterScreen"
         Background="{StaticResource PrimaryBackgroundBrush}"
+        Icon="Resources/app.ico"
         PreviewKeyDown="Window_PreviewKeyDown">
 
     <!-- Keyboard Shortcuts -->
