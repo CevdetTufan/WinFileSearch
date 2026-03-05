@@ -31,27 +31,21 @@ jobs:
     - name: Install Inno Setup
       run: choco install innosetup -y
 
+    - name: Copy Icon
+      shell: pwsh
+      run: |
+        Copy-Item "src\WinFileSearch.UI\Resources\app.ico" "installer\app.ico"
+
     - name: Build Installer
       shell: pwsh
       working-directory: installer
       run: |
         & "C:\Program Files (x86)\Inno Setup 6\ISCC.exe" "WinFileSearch.iss"
 
-    - name: List Files
-      shell: pwsh
-      run: |
-        Get-ChildItem -Recurse *.exe, *.zip | Select-Object FullName
-
     - name: Create Release
       uses: softprops/action-gh-release@v1
       with:
         name: WinFileSearch ${{ github.ref_name }}
-        body: |
-          ## WinFileSearch ${{ github.ref_name }}
-          
-          ### İndirme Seçenekleri
-          - **Setup EXE**: Kurulum sihirbazı ile kolay yükleme
-          - **Portable ZIP**: Kurulum gerektirmez, çıkar ve çalıştır
         files: |
           ./WinFileSearch-*.zip
           ./WinFileSearch-Setup-*.exe
