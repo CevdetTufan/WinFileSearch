@@ -361,3 +361,9 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
+# SQLite Database files - DO NOT PUSH USER DATA
+*.db
+*.db-shm
+*.db-wal
+*.sqlite
+*.sqlite3
