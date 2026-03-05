@@ -55,6 +55,16 @@ cd WinFileSearch dotnet build dotnet run --project src/WinFileSearch.UI
 ### Release İndirme
 [Releases](https://github.com/CevdetTufan/WinFileSearch/releases) sayfasından son sürümü indirebilirsiniz.
 
+### ⚠️ Windows SmartScreen Uyarısı
+
+Uygulama dijital imzalı olmadığı için Windows bir uyarı gösterebilir:
+
+1. "More info" / "Daha fazla bilgi" tıklayın
+2. "Run anyway" / "Yine de çalıştır" seçin
+3. Güvenli - kaynak kodu açık ve denetlenebilir
+
+Veya portable ZIP sürümünü kullanın (uyarı yok).
+
 ## 📖 Kullanım
 
 1. **Uygulamayı başlatın**

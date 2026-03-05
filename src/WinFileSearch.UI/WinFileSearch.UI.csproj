@@ -27,7 +27,7 @@
     <Company>CevdetTufan</Company>
     <Authors>Cevdet Tufan</Authors>
     <Description>Fast file search application for Windows with SQLite FTS5</Description>
-    <Copyright>Copyright © 2024 Cevdet Tufan</Copyright>
+    <Copyright>Copyright © 2026 Cevdet Tufan</Copyright>
     <RepositoryUrl>https://github.com/CevdetTufan/WinFileSearch</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
   </PropertyGroup>
