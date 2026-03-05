@@ -5,10 +5,6 @@ on:
     tags:
       - 'v*'
 
-env:
-  DOTNET_VERSION: '8.0.x'
-  PROJECT_PATH: 'src/WinFileSearch.UI/WinFileSearch.UI.csproj'
-
 jobs:
   build:
     runs-on: windows-latest
@@ -20,68 +16,47 @@ jobs:
     - name: Setup .NET
       uses: actions/setup-dotnet@v4
       with:
-        dotnet-version: ${{ env.DOTNET_VERSION }}
+        dotnet-version: 8.0.x
 
-    - name: Get version from tag
+    - name: Get version
       id: version
-      run: echo "VERSION=${GITHUB_REF#refs/tags/v}" >> $env:GITHUB_OUTPUT
-
-    - name: Restore dependencies
-      run: dotnet restore
+      shell: pwsh
+      run: |
+        $ver = "${{ github.ref_name }}".TrimStart('v')
+        "VERSION=$ver" | Out-File -FilePath $env:GITHUB_OUTPUT -Append
 
     - name: Build
-      run: dotnet build --configuration Release --no-restore
-
-    - name: Run tests
-      run: dotnet test --configuration Release --no-build --verbosity normal
-      continue-on-error: true
-
-    - name: Publish Self-Contained (x64)
       run: |
-        dotnet publish ${{ env.PROJECT_PATH }} `
-          --configuration Release `
-          --runtime win-x64 `
-          --self-contained true `
-          --output ./publish/win-x64 `
-          -p:PublishSingleFile=true `
-          -p:IncludeNativeLibrariesForSelfExtract=true `
-          -p:Version=${{ steps.version.outputs.VERSION }}
+        dotnet restore
+        dotnet build --configuration Release
 
-    - name: Publish Framework-Dependent (x64)
+    - name: Publish
       run: |
-        dotnet publish ${{ env.PROJECT_PATH }} `
-          --configuration Release `
-          --runtime win-x64 `
-          --self-contained false `
-          --output ./publish/win-x64-fd `
-          -p:PublishSingleFile=true `
-          -p:Version=${{ steps.version.outputs.VERSION }}
+        dotnet publish src/WinFileSearch.UI/WinFileSearch.UI.csproj -c Release -r win-x64 --self-contained true -o ./publish/win-x64 -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true
 
-    - name: Create ZIP archives
+    - name: Create ZIP
+      shell: pwsh
       run: |
-        Compress-Archive -Path ./publish/win-x64/* -DestinationPath ./WinFileSearch-v${{ steps.version.outputs.VERSION }}-win-x64-selfcontained.zip
-        Compress-Archive -Path ./publish/win-x64-fd/* -DestinationPath ./WinFileSearch-v${{ steps.version.outputs.VERSION }}-win-x64.zip
+        Compress-Archive -Path ./publish/win-x64/* -DestinationPath "./WinFileSearch-${{ github.ref_name }}-portable.zip"
 
-    - name: Create Release
+    - name: Install Inno Setup
+      run: choco install innosetup -y
+
+    - name: Build Installer
+      shell: pwsh
+      run: |
+        $content = Get-Content "installer/WinFileSearch.iss" -Raw
+        $content = $content -replace '#define MyAppVersion "1.0.0"', "#define MyAppVersion `"${{ steps.version.outputs.VERSION }}`""
+        $content | Set-Content "installer/WinFileSearch.iss"
+        & "C:\Program Files (x86)\Inno Setup 6\ISCC.exe" "installer/WinFileSearch.iss"
+        Get-ChildItem installer/*.exe | Rename-Item -NewName "WinFileSearch-${{ github.ref_name }}-setup.exe"
+
+    - name: Release
       uses: softprops/action-gh-release@v1
       with:
-        name: WinFileSearch v${{ steps.version.outputs.VERSION }}
-        body: |
-          ## WinFileSearch v${{ steps.version.outputs.VERSION }}
-          
-          ### Downloads
-          - **Self-Contained (Recommended)**: No .NET runtime required (~65MB)
-          - **Framework-Dependent**: Requires .NET 8 runtime (~15MB)
-          
-          ### What's New
-          See [CHANGELOG.md](https://github.com/${{ github.repository }}/blob/master/CHANGELOG.md) for details.
-          
-          ---
-          ⚠️ **Beta Version**: This is a pre-release version. Please report any issues.
-        draft: false
-        prerelease: ${{ contains(github.ref, 'beta') || contains(github.ref, 'alpha') }}
         files: |
-          ./WinFileSearch-v${{ steps.version.outputs.VERSION }}-win-x64-selfcontained.zip
-          ./WinFileSearch-v${{ steps.version.outputs.VERSION }}-win-x64.zip
+          ./WinFileSearch-${{ github.ref_name }}-portable.zip
+          ./installer/WinFileSearch-${{ github.ref_name }}-setup.exe
+        prerelease: true
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
