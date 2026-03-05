@@ -21,7 +21,7 @@ DefaultDirName={autopf}\{#MyAppName}
 DefaultGroupName={#MyAppName}
 AllowNoIcons=yes
 ; Output settings
-OutputDir=installer
+OutputDir=..
 OutputBaseFilename=WinFileSearch-Setup-{#MyAppVersion}
 ; Compression
 Compression=lzma2/ultra64
@@ -51,7 +51,7 @@ Name: "startupicon"; Description: "Start with Windows"; GroupDescription: "Other
 
 [Files]
 ; Main application files (from publish output)
-Source: "publish\win-x64\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "..\publish\win-x64\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
 
 [Icons]
 Name: "{group}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"
