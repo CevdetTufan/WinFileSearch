@@ -71,8 +71,10 @@ public partial class SearchViewModel : ObservableObject, IDisposable
         _loggingService = loggingService;
 
         // Initialize debounce timer
-        _debounceTimer = new Timer(DebounceDelayMs);
-        _debounceTimer.AutoReset = false;
+        _debounceTimer = new Timer(DebounceDelayMs)
+        {
+            AutoReset = false
+        };
         _debounceTimer.Elapsed += OnDebounceTimerElapsed;
 
         // Load search history
