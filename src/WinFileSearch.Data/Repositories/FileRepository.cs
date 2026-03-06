@@ -4,19 +4,14 @@ using WinFileSearch.Data.Models;
 
 namespace WinFileSearch.Data.Repositories;
 
-public class FileRepository : IFileRepository
+public class FileRepository(FileSearchDbContext context) : IFileRepository
 {
-    private readonly FileSearchDbContext _context;
+    private readonly FileSearchDbContext _context = context;
     private const string SqlAnd = " AND ";
 
-    public FileRepository(FileSearchDbContext context)
-    {
-        _context = context;
-    }
+	#region File Operations
 
-    #region File Operations
-
-    public async Task<long> InsertFileAsync(FileEntry file)
+	public async Task<long> InsertFileAsync(FileEntry file)
     {
         var connection = _context.GetConnection();
         var command = connection.CreateCommand();
