@@ -1,6 +1,4 @@
-using System.Drawing;
 using System.Windows;
-using System.Windows.Forms;
 using Application = System.Windows.Application;
 
 namespace WinFileSearch.UI.Services;
@@ -138,5 +136,7 @@ public class SystemTrayService : ISystemTrayService
             _notifyIcon.Dispose();
             _notifyIcon = null;
         }
+
+        GC.SuppressFinalize(this);
     }
 }

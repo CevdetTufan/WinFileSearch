@@ -1,6 +1,5 @@
 using Microsoft.Win32;
 using System.Diagnostics;
-using System.IO;
 
 namespace WinFileSearch.UI.Services;
 
