@@ -246,16 +246,17 @@ public class FileIndexService : IFileIndexService
         // Clear files only, preserve folder list
         await _dbContext.ClearFilesOnlyAsync();
 
-        // Re-index all folders
-        foreach (var folder in folders)
+        // Re-index all folders - filter to existing directories and project to paths
+        var folderPaths = folders
+            .Select(folder => folder.Path)
+            .Where(Directory.Exists);
+
+        foreach (var path in folderPaths)
         {
             if (cancellationToken.IsCancellationRequested)
                 return;
 
-            if (Directory.Exists(folder.Path))
-            {
-                await IndexFolderAsync(folder.Path, progress, cancellationToken);
-            }
+            await IndexFolderAsync(path, progress, cancellationToken);
         }
     }
 
