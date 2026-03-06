@@ -60,8 +60,8 @@ public partial class SearchViewModel : ObservableObject, IDisposable
     [ObservableProperty]
     private bool _hasSearched;
 
-    public ObservableCollection<FileEntry> SearchResults { get; } = new();
-    public ObservableCollection<string> SearchHistory { get; } = new();
+    public ObservableCollection<FileEntry> SearchResults { get; } = [];
+    public ObservableCollection<string> SearchHistory { get; } = [];
 
     public SearchViewModel(IFileSearchService searchService, ISearchHistoryService historyService, IFavoritesService favoritesService, ILoggingService loggingService)
     {
