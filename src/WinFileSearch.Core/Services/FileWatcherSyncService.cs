@@ -11,6 +11,7 @@ public class FileWatcherSyncService : IDisposable
     private readonly IFileWatcherService _watcherService;
     private readonly IFileRepository _repository;
     private readonly SemaphoreSlim _syncLock = new(1, 1);
+    private bool _disposed;
     
     public event EventHandler<string>? FileSynced;
 
@@ -175,11 +176,24 @@ public class FileWatcherSyncService : IDisposable
 
     public void Dispose()
     {
-        _watcherService.FileCreated -= OnFileCreated;
-        _watcherService.FileDeleted -= OnFileDeleted;
-        _watcherService.FileRenamed -= OnFileRenamed;
-        _watcherService.FileChanged -= OnFileChanged;
-        _syncLock.Dispose();
+        Dispose(true);
         GC.SuppressFinalize(this);
+    }
+
+    protected virtual void Dispose(bool disposing)
+    {
+        if (_disposed)
+            return;
+
+        if (disposing)
+        {
+            _watcherService.FileCreated -= OnFileCreated;
+            _watcherService.FileDeleted -= OnFileDeleted;
+            _watcherService.FileRenamed -= OnFileRenamed;
+            _watcherService.FileChanged -= OnFileChanged;
+            _syncLock.Dispose();
+        }
+
+        _disposed = true;
     }
 }

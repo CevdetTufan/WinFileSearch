@@ -7,6 +7,7 @@ public class FileWatcherService(IFileRepository repository) : IFileWatcherServic
     private readonly Dictionary<string, FileSystemWatcher> _watchers = [];
     private readonly IFileRepository _repository = repository;
     private bool _isWatching;
+    private bool _disposed;
 
     public event EventHandler<FileSystemEventArgs>? FileCreated;
     public event EventHandler<FileSystemEventArgs>? FileDeleted;
@@ -128,7 +129,20 @@ public class FileWatcherService(IFileRepository repository) : IFileWatcherServic
 
     public void Dispose()
     {
-        StopWatching();
+        Dispose(true);
         GC.SuppressFinalize(this);
+    }
+
+    protected virtual void Dispose(bool disposing)
+    {
+        if (_disposed)
+            return;
+
+        if (disposing)
+        {
+            StopWatching();
+        }
+
+        _disposed = true;
     }
 }
