@@ -4,7 +4,7 @@ namespace WinFileSearch.Core.Services;
 
 public class FileWatcherService(IFileRepository repository) : IFileWatcherService, IDisposable
 {
-    private readonly Dictionary<string, FileSystemWatcher> _watchers = new();
+    private readonly Dictionary<string, FileSystemWatcher> _watchers = [];
     private readonly IFileRepository _repository = repository;
     private bool _isWatching;
 
