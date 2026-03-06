@@ -274,10 +274,9 @@ public class FileIndexService : IFileIndexService
         return await _repository.GetTotalFileCountAsync();
     }
 
-    public async Task<DateTime?> GetLastIndexTimeAsync()
-    {
-        var folders = await _repository.GetIncludedFoldersAsync();
-        var lastIndexed = folders.MaxBy(f => f.LastIndexed);
-        return lastIndexed?.LastIndexed;
-    }
+	public async Task<DateTime?> GetLastIndexTimeAsync()
+	{
+		var folders = await _repository.GetIncludedFoldersAsync();
+		return folders.Max(f => (DateTime?)f.LastIndexed);
+	}
 }
