@@ -17,7 +17,7 @@ public interface ISearchHistoryService
 public class SearchHistoryService : ISearchHistoryService
 {
     private static readonly JsonSerializerOptions s_jsonOptions = new() { WriteIndented = true };
-    private readonly List<string> _history = new();
+    private readonly List<string> _history = [];
     private readonly string _historyFilePath;
     private const int MaxHistoryItems = 10;
 
