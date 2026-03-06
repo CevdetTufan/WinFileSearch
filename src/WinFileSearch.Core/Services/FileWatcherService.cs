@@ -2,11 +2,12 @@ using WinFileSearch.Data.Repositories;
 
 namespace WinFileSearch.Core.Services;
 
-public class FileWatcherService : IFileWatcherService, IDisposable
+public class FileWatcherService(IFileRepository repository) : IFileWatcherService, IDisposable
 {
-    private readonly Dictionary<string, FileSystemWatcher> _watchers = new();
-    private readonly IFileRepository _repository;
+    private readonly Dictionary<string, FileSystemWatcher> _watchers = [];
+    private readonly IFileRepository _repository = repository;
     private bool _isWatching;
+    private bool _disposed;
 
     public event EventHandler<FileSystemEventArgs>? FileCreated;
     public event EventHandler<FileSystemEventArgs>? FileDeleted;
@@ -15,28 +16,20 @@ public class FileWatcherService : IFileWatcherService, IDisposable
 
     public bool IsWatching => _isWatching;
 
-    public FileWatcherService(IFileRepository repository)
-    {
-        _repository = repository;
-    }
+	public async Task StartWatchingAsync()
+	{
+		if (_isWatching)
+			return;
 
-    public async Task StartWatchingAsync()
-    {
-        if (_isWatching)
-            return;
+		var folders = await _repository.GetIncludedFoldersAsync();
 
-        var folders = await _repository.GetIncludedFoldersAsync();
-        
-        foreach (var folder in folders)
-        {
-            if (Directory.Exists(folder.Path))
-            {
-                AddWatcher(folder.Path);
-            }
-        }
+		foreach (var folder in folders.Where(f => Directory.Exists(f.Path)))
+		{
+			AddWatcher(folder.Path);
+		}
 
-        _isWatching = true;
-    }
+		_isWatching = true;
+	}
 
     public void StopWatching()
     {
@@ -133,6 +126,20 @@ public class FileWatcherService : IFileWatcherService, IDisposable
 
     public void Dispose()
     {
-        StopWatching();
+        Dispose(true);
+        GC.SuppressFinalize(this);
+    }
+
+    protected virtual void Dispose(bool disposing)
+    {
+        if (_disposed)
+            return;
+
+        if (disposing)
+        {
+            StopWatching();
+        }
+
+        _disposed = true;
     }
 }

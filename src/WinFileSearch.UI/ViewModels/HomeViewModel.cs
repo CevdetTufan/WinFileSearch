@@ -31,7 +31,7 @@ public partial class HomeViewModel : ObservableObject
     [ObservableProperty]
     private long _totalFilesIndexed;
 
-    public ObservableCollection<FileEntry> RecentFiles { get; } = new();
+    public ObservableCollection<FileEntry> RecentFiles { get; } = [];
 
     public HomeViewModel(IFileSearchService searchService, IFileIndexService indexService, INavigationService navigationService)
     {

@@ -1,20 +1,17 @@
+using System.Globalization;
 using Microsoft.Data.Sqlite;
 using WinFileSearch.Data.Models;
 
 namespace WinFileSearch.Data.Repositories;
 
-public class FileRepository : IFileRepository
+public class FileRepository(FileSearchDbContext context) : IFileRepository
 {
-    private readonly FileSearchDbContext _context;
+    private readonly FileSearchDbContext _context = context;
+    private const string SqlAnd = " AND ";
 
-    public FileRepository(FileSearchDbContext context)
-    {
-        _context = context;
-    }
+	#region File Operations
 
-    #region File Operations
-
-    public async Task<long> InsertFileAsync(FileEntry file)
+	public async Task<long> InsertFileAsync(FileEntry file)
     {
         var connection = _context.GetConnection();
         var command = connection.CreateCommand();
@@ -45,7 +42,7 @@ public class FileRepository : IFileRepository
     public async Task InsertFilesAsync(IEnumerable<FileEntry> files)
     {
         var connection = _context.GetConnection();
-        using var transaction = connection.BeginTransaction();
+        await using var transaction = (SqliteTransaction)await connection.BeginTransactionAsync();
 
         try
         {
@@ -68,7 +65,7 @@ public class FileRepository : IFileRepository
             var categoryParam = command.Parameters.Add("$category", SqliteType.Integer);
 
             // Prepare the command once for reuse
-            command.Prepare();
+            await command.PrepareAsync();
 
             foreach (var file in files)
             {
@@ -82,15 +79,14 @@ public class FileRepository : IFileRepository
                 folderIdParam.Value = file.FolderId;
                 categoryParam.Value = (int)file.Category;
 
-                command.ExecuteNonQuery(); // Sync is faster for batch operations within transaction
+                await command.ExecuteNonQueryAsync();
             }
 
-            transaction.Commit();
-            await Task.CompletedTask; // Keep method async for interface compatibility
+            await transaction.CommitAsync();
         }
         catch
         {
-            transaction.Rollback();
+            await transaction.RollbackAsync();
             throw;
         }
     }
@@ -185,11 +181,11 @@ public class FileRepository : IFileRepository
         {
             if (command.CommandText.Contains("WHERE FilesSearch"))
             {
-                command.CommandText += " AND " + string.Join(" AND ", conditions);
+                command.CommandText += SqlAnd + string.Join(SqlAnd, conditions);
             }
             else
             {
-                command.CommandText += " AND " + string.Join(" AND ", conditions);
+                command.CommandText += SqlAnd + string.Join(SqlAnd, conditions);
             }
         }
         
@@ -417,8 +413,8 @@ public class FileRepository : IFileRepository
             Extension = reader.IsDBNull(reader.GetOrdinal("Extension")) ? "" : reader.GetString(reader.GetOrdinal("Extension")),
             Directory = reader.IsDBNull(reader.GetOrdinal("Directory")) ? "" : reader.GetString(reader.GetOrdinal("Directory")),
             Size = reader.IsDBNull(reader.GetOrdinal("Size")) ? 0 : reader.GetInt64(reader.GetOrdinal("Size")),
-            CreatedAt = DateTime.TryParse(reader.GetString(reader.GetOrdinal("CreatedAt")), out var created) ? created : DateTime.MinValue,
-            ModifiedAt = DateTime.TryParse(reader.GetString(reader.GetOrdinal("ModifiedAt")), out var modified) ? modified : DateTime.MinValue,
+            CreatedAt = DateTime.TryParse(reader.GetString(reader.GetOrdinal("CreatedAt")), CultureInfo.InvariantCulture, DateTimeStyles.RoundtripKind, out var created) ? created : DateTime.MinValue,
+            ModifiedAt = DateTime.TryParse(reader.GetString(reader.GetOrdinal("ModifiedAt")), CultureInfo.InvariantCulture, DateTimeStyles.RoundtripKind, out var modified) ? modified : DateTime.MinValue,
             FolderId = reader.IsDBNull(reader.GetOrdinal("FolderId")) ? 0 : reader.GetInt64(reader.GetOrdinal("FolderId")),
             Category = (FileCategory)(reader.IsDBNull(reader.GetOrdinal("Category")) ? 0 : reader.GetInt32(reader.GetOrdinal("Category")))
         };
@@ -430,7 +426,7 @@ public class FileRepository : IFileRepository
         {
             Id = reader.GetInt64(reader.GetOrdinal("Id")),
             Path = reader.GetString(reader.GetOrdinal("Path")),
-            LastIndexed = DateTime.TryParse(reader.GetString(reader.GetOrdinal("LastIndexed")), out var indexed) ? indexed : DateTime.MinValue,
+            LastIndexed = DateTime.TryParse(reader.GetString(reader.GetOrdinal("LastIndexed")), CultureInfo.InvariantCulture, DateTimeStyles.RoundtripKind, out var indexed) ? indexed : DateTime.MinValue,
             FileCount = reader.IsDBNull(reader.GetOrdinal("FileCount")) ? 0 : reader.GetInt32(reader.GetOrdinal("FileCount")),
             TotalSize = reader.IsDBNull(reader.GetOrdinal("TotalSize")) ? 0 : reader.GetInt64(reader.GetOrdinal("TotalSize")),
             IsExcluded = reader.GetInt32(reader.GetOrdinal("IsExcluded")) == 1

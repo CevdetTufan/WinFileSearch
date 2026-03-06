@@ -86,7 +86,7 @@ public class FileCategoryToBrushConverter : IValueConverter
 /// </summary>
 public class FileSizeConverter : IValueConverter
 {
-    private static readonly string[] SizeSuffixes = { "B", "KB", "MB", "GB", "TB" };
+    private static readonly string[] SizeSuffixes = ["B", "KB", "MB", "GB", "TB"];
 
     public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
     {
@@ -119,7 +119,7 @@ public class RelativeTimeConverter : IValueConverter
         if (value is not DateTime dateTime)
             return "";
 
-        var timeSpan = DateTime.Now - dateTime;
+        var timeSpan = DateTime.UtcNow - dateTime.ToUniversalTime();
 
         if (timeSpan.TotalMinutes < 1)
             return "Just now";
@@ -171,7 +171,7 @@ public class SearchHighlightConverter : IMultiValueConverter
 {
     public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture)
     {
-        if (values.Length < 2 || values[0] is not string text || values[1] is not string searchText)
+        if (values.Length < 2 || values[0] is not string text || values[1] is not string)
             return values[0] ?? "";
 
         return text; // For simplicity, just return text. Actual highlighting would need a TextBlock with Inlines

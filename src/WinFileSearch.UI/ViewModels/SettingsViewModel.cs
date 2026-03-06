@@ -15,7 +15,7 @@ public class LanguageOption
     public string Name { get; set; } = string.Empty;
 }
 
-public partial class SettingsViewModel : ObservableObject
+public partial class SettingsViewModel : ObservableObject, IDisposable
 {
     private readonly IFileIndexService _indexService;
     private readonly IStartupService _startupService;
@@ -24,6 +24,7 @@ public partial class SettingsViewModel : ObservableObject
     private readonly ILoggingService _loggingService;
     private readonly IUpdateService _updateService;
     private CancellationTokenSource? _indexingCts;
+    private bool _disposed;
 
     [ObservableProperty]
     private bool _backgroundIndexingEnabled;
@@ -89,13 +90,13 @@ public partial class SettingsViewModel : ObservableObject
 
     private UpdateInfo? _updateInfo;
 
-    public ObservableCollection<IndexedFolder> IncludedFolders { get; } = new();
-    public ObservableCollection<IndexedFolder> ExcludedFolders { get; } = new();
-    public ObservableCollection<LanguageOption> AvailableLanguages { get; } = new()
-    {
-        new LanguageOption { Code = "en", Name = "English" },
+    public ObservableCollection<IndexedFolder> IncludedFolders { get; } = [];
+    public ObservableCollection<IndexedFolder> ExcludedFolders { get; } = [];
+    public ObservableCollection<LanguageOption> AvailableLanguages { get; } =
+	[
+		new LanguageOption { Code = "en", Name = "English" },
         new LanguageOption { Code = "tr", Name = "Türkçe" }
-    };
+    ];
 
     public SettingsViewModel(
         IFileIndexService indexService, 
@@ -150,7 +151,10 @@ public partial class SettingsViewModel : ObservableObject
         {
             System.Diagnostics.Process.Start("explorer.exe", LogFilePath);
         }
-        catch { }
+        catch (Exception ex)
+        {
+            _loggingService.LogError("Failed to open log folder", ex);
+        }
     }
 
     partial void OnStartWithWindowsChanged(bool value)
@@ -210,11 +214,11 @@ public partial class SettingsViewModel : ObservableObject
     }
 
     /// <summary>
-    /// Adds a folder by path (used by drag & drop)
+    /// Adds a folder by path (used by drag and drop)
     /// </summary>
-    public async void AddFolderByPath(string path)
+    public Task AddFolderByPath(string path)
     {
-        await AddFolderByPathAsync(path);
+        return AddFolderByPathAsync(path);
     }
 
     private async Task AddFolderByPathAsync(string path)
@@ -277,20 +281,24 @@ public partial class SettingsViewModel : ObservableObject
         if (IsIndexing)
         {
             // Cancel current indexing
-            _indexingCts?.Cancel();
+            if (_indexingCts != null)
+            {
+                await _indexingCts.CancelAsync();
+            }
             return;
         }
 
         IsIndexing = true;
         IndexingProgress = 0;
         IndexingStatus = "Rebuilding index...";
+        _indexingCts?.Dispose();
         _indexingCts = new CancellationTokenSource();
 
         var progress = new Progress<IndexingProgress>(p =>
         {
             IndexingProgress = p.PercentComplete;
             IndexingStatus = $"Indexing: {p.CurrentFile}";
-            
+
             if (p.IsCompleted)
             {
                 IndexingStatus = "Indexing completed";
@@ -317,6 +325,7 @@ public partial class SettingsViewModel : ObservableObject
         finally
         {
             IsIndexing = false;
+            _indexingCts?.Dispose();
             _indexingCts = null;
         }
     }
@@ -326,13 +335,14 @@ public partial class SettingsViewModel : ObservableObject
         IsIndexing = true;
         IndexingProgress = 0;
         IndexingStatus = $"Indexing {folderPath}...";
+        _indexingCts?.Dispose();
         _indexingCts = new CancellationTokenSource();
 
         var progress = new Progress<IndexingProgress>(p =>
         {
             IndexingProgress = p.PercentComplete;
             IndexingStatus = $"Indexing: {p.CurrentFile} ({p.ProcessedFiles}/{p.TotalFiles})";
-            
+
             if (p.IsCompleted)
             {
                 IndexingStatus = "Indexing completed";
@@ -355,14 +365,18 @@ public partial class SettingsViewModel : ObservableObject
         finally
         {
             IsIndexing = false;
+            _indexingCts?.Dispose();
             _indexingCts = null;
         }
     }
 
     [RelayCommand]
-    private void CancelIndexing()
+    private async Task CancelIndexingAsync()
     {
-        _indexingCts?.Cancel();
+        if (_indexingCts != null)
+        {
+            await _indexingCts.CancelAsync();
+        }
     }
 
     #region Update Methods
@@ -437,4 +451,23 @@ public partial class SettingsViewModel : ObservableObject
     }
 
     #endregion
+
+    public void Dispose()
+    {
+        Dispose(true);
+        GC.SuppressFinalize(this);
+    }
+
+    protected virtual void Dispose(bool disposing)
+    {
+        if (_disposed)
+            return;
+
+        if (disposing)
+        {
+            _indexingCts?.Dispose();
+        }
+
+        _disposed = true;
+    }
 }

@@ -4,16 +4,11 @@ using WinFileSearch.Data.Repositories;
 
 namespace WinFileSearch.Core.Services;
 
-public class FileSearchService : IFileSearchService
+public class FileSearchService(IFileRepository repository) : IFileSearchService
 {
-    private readonly IFileRepository _repository;
+    private readonly IFileRepository _repository = repository;
 
-    public FileSearchService(IFileRepository repository)
-    {
-        _repository = repository;
-    }
-
-    public async Task<IEnumerable<FileEntry>> SearchAsync(string query, FileCategory? category = null, int maxResults = 100)
+	public async Task<IEnumerable<FileEntry>> SearchAsync(string query, FileCategory? category = null, int maxResults = 100)
     {
         var filter = new SearchFilter
         {

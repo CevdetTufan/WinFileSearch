@@ -1,6 +1,7 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.Timers;
 using WinFileSearch.Core.Services;
 using WinFileSearch.Data.Models;
@@ -17,6 +18,7 @@ public partial class SearchViewModel : ObservableObject, IDisposable
     private readonly ILoggingService _loggingService;
     private readonly Timer _debounceTimer;
     private const int DebounceDelayMs = 300;
+    private bool _disposed;
 
     [ObservableProperty]
     private string _searchQuery = string.Empty;
@@ -29,10 +31,10 @@ public partial class SearchViewModel : ObservableObject, IDisposable
     private FileCategory? _selectedCategory;
 
     // Computed properties for filter toggle synchronization
-    public bool IsAllSelected => _selectedCategory == null;
-    public bool IsDocumentsSelected => _selectedCategory == FileCategory.Document;
-    public bool IsImagesSelected => _selectedCategory == FileCategory.Image;
-    public bool IsMediaSelected => _selectedCategory == FileCategory.Media;
+    public bool IsAllSelected => SelectedCategory == null;
+    public bool IsDocumentsSelected => SelectedCategory == FileCategory.Document;
+    public bool IsImagesSelected => SelectedCategory == FileCategory.Image;
+    public bool IsMediaSelected => SelectedCategory == FileCategory.Media;
 
     [ObservableProperty]
     private FileEntry? _selectedFile;
@@ -58,8 +60,8 @@ public partial class SearchViewModel : ObservableObject, IDisposable
     [ObservableProperty]
     private bool _hasSearched;
 
-    public ObservableCollection<FileEntry> SearchResults { get; } = new();
-    public ObservableCollection<string> SearchHistory { get; } = new();
+    public ObservableCollection<FileEntry> SearchResults { get; } = [];
+    public ObservableCollection<string> SearchHistory { get; } = [];
 
     public SearchViewModel(IFileSearchService searchService, ISearchHistoryService historyService, IFavoritesService favoritesService, ILoggingService loggingService)
     {
@@ -69,8 +71,10 @@ public partial class SearchViewModel : ObservableObject, IDisposable
         _loggingService = loggingService;
 
         // Initialize debounce timer
-        _debounceTimer = new Timer(DebounceDelayMs);
-        _debounceTimer.AutoReset = false;
+        _debounceTimer = new Timer(DebounceDelayMs)
+        {
+            AutoReset = false
+        };
         _debounceTimer.Elapsed += OnDebounceTimerElapsed;
 
         // Load search history
@@ -194,7 +198,7 @@ public partial class SearchViewModel : ObservableObject, IDisposable
         ShowEmptyState = false;
         StatusMessage = "Searching...";
 
-        var startTime = DateTime.Now;
+        var stopwatch = Stopwatch.StartNew();
 
         try
         {
@@ -215,7 +219,8 @@ public partial class SearchViewModel : ObservableObject, IDisposable
                 SearchResults.Add(file);
             }
 
-            var duration = DateTime.Now - startTime;
+            stopwatch.Stop();
+            var duration = stopwatch.Elapsed;
             _loggingService.LogPerformance($"Search '{SearchQuery}'", duration);
 
             HasSearched = true;
@@ -345,10 +350,25 @@ public partial class SearchViewModel : ObservableObject, IDisposable
 
     public void Dispose()
     {
-        _debounceTimer.Stop();
-        _debounceTimer.Elapsed -= OnDebounceTimerElapsed;
-        _debounceTimer.Dispose();
-        _historyService.HistoryChanged -= OnHistoryChanged;
-        _favoritesService.FavoritesChanged -= OnFavoritesChanged;
+        Dispose(true);
+        GC.SuppressFinalize(this);
+    }
+
+    protected virtual void Dispose(bool disposing)
+    {
+        if (_disposed)
+            return;
+
+        if (disposing)
+        {
+            // Dispose managed resources
+            _debounceTimer.Stop();
+            _debounceTimer.Elapsed -= OnDebounceTimerElapsed;
+            _debounceTimer.Dispose();
+            _historyService.HistoryChanged -= OnHistoryChanged;
+            _favoritesService.FavoritesChanged -= OnFavoritesChanged;
+        }
+
+        _disposed = true;
     }
 }

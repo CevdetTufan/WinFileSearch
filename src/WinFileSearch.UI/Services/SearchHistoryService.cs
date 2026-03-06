@@ -16,7 +16,8 @@ public interface ISearchHistoryService
 
 public class SearchHistoryService : ISearchHistoryService
 {
-    private readonly List<string> _history = new();
+    private static readonly JsonSerializerOptions s_jsonOptions = new() { WriteIndented = true };
+    private readonly List<string> _history = [];
     private readonly string _historyFilePath;
     private const int MaxHistoryItems = 10;
 
@@ -93,10 +94,7 @@ public class SearchHistoryService : ISearchHistoryService
     {
         try
         {
-            var json = JsonSerializer.Serialize(_history, new JsonSerializerOptions 
-            { 
-                WriteIndented = true 
-            });
+            var json = JsonSerializer.Serialize(_history, s_jsonOptions);
             File.WriteAllText(_historyFilePath, json);
         }
         catch (Exception)

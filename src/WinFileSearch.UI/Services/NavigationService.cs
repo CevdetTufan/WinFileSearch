@@ -31,28 +31,22 @@ public interface INavigationService
 /// <summary>
 /// Event arguments for navigation requests.
 /// </summary>
-public class NavigationEventArgs : EventArgs
+/// <remarks>
+/// Initializes a new instance of the <see cref="NavigationEventArgs"/> class.
+/// </remarks>
+/// <param name="pageName">The name of the target page.</param>
+/// <param name="parameter">Optional navigation parameter.</param>
+public class NavigationEventArgs(string pageName, object? parameter = null) : EventArgs
 {
-    /// <summary>
-    /// Gets the name of the target page (e.g., "Search", "Home", "Settings").
-    /// </summary>
-    public string PageName { get; }
+	/// <summary>
+	/// Gets the name of the target page (e.g., "Search", "Home", "Settings").
+	/// </summary>
+	public string PageName { get; } = pageName;
 
-    /// <summary>
-    /// Gets the optional parameter passed to the target page.
-    /// </summary>
-    public object? Parameter { get; }
-
-    /// <summary>
-    /// Initializes a new instance of the <see cref="NavigationEventArgs"/> class.
-    /// </summary>
-    /// <param name="pageName">The name of the target page.</param>
-    /// <param name="parameter">Optional navigation parameter.</param>
-    public NavigationEventArgs(string pageName, object? parameter = null)
-    {
-        PageName = pageName;
-        Parameter = parameter;
-    }
+	/// <summary>
+	/// Gets the optional parameter passed to the target page.
+	/// </summary>
+	public object? Parameter { get; } = parameter;
 }
 
 /// <summary>

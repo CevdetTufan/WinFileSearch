@@ -1,6 +1,4 @@
-using System.Drawing;
 using System.Windows;
-using System.Windows.Forms;
 using Application = System.Windows.Application;
 
 namespace WinFileSearch.UI.Services;
@@ -19,6 +17,7 @@ public class SystemTrayService : ISystemTrayService
     private NotifyIcon? _notifyIcon;
     private Window? _mainWindow;
     private bool _isExiting;
+    private bool _disposed;
 
     public void Initialize(Window mainWindow)
     {
@@ -124,19 +123,35 @@ public class SystemTrayService : ISystemTrayService
         return Icon.FromHandle(bitmap.GetHicon());
     }
 
-    public void Dispose()
+    protected virtual void Dispose(bool disposing)
     {
-        if (_mainWindow != null)
+        if (_disposed)
         {
-            _mainWindow.StateChanged -= OnWindowStateChanged;
-            _mainWindow.Closing -= OnWindowClosing;
+            return;
         }
 
-        if (_notifyIcon != null)
+        if (disposing)
         {
-            _notifyIcon.Visible = false;
-            _notifyIcon.Dispose();
-            _notifyIcon = null;
+            if (_mainWindow != null)
+            {
+                _mainWindow.StateChanged -= OnWindowStateChanged;
+                _mainWindow.Closing -= OnWindowClosing;
+            }
+
+            if (_notifyIcon != null)
+            {
+                _notifyIcon.Visible = false;
+                _notifyIcon.Dispose();
+                _notifyIcon = null;
+            }
         }
+
+        _disposed = true;
+    }
+
+    public void Dispose()
+    {
+        Dispose(true);
+        GC.SuppressFinalize(this);
     }
 }

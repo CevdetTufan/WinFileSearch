@@ -32,14 +32,14 @@ public interface IPerformanceMetricsService
 public class PerformanceMetricsService : IPerformanceMetricsService
 {
     private readonly DateTime _startTime;
-    private readonly List<double> _searchTimes = new();
+    private readonly List<double> _searchTimes = [];
     private readonly object _lock = new();
     private long _totalFilesIndexed;
     private double _lastIndexingTimeMs;
 
     public PerformanceMetricsService()
     {
-        _startTime = DateTime.Now;
+        _startTime = DateTime.UtcNow;
     }
 
     public PerformanceMetrics GetMetrics()
@@ -52,13 +52,13 @@ public class PerformanceMetricsService : IPerformanceMetricsService
             {
                 TotalSearches = _searchTimes.Count,
                 AverageSearchTimeMs = _searchTimes.Count > 0 ? _searchTimes.Average() : 0,
-                LastSearchTimeMs = _searchTimes.Count > 0 ? _searchTimes.Last() : 0,
+                LastSearchTimeMs = _searchTimes.Count > 0 ? _searchTimes[^1] : 0,
                 TotalFilesIndexed = _totalFilesIndexed,
                 IndexingTimeMs = _lastIndexingTimeMs,
                 MemoryUsageMB = process.WorkingSet64 / (1024 * 1024),
                 CpuUsagePercent = 0, // CPU usage requires more complex tracking
-                LastUpdated = DateTime.Now,
-                Uptime = DateTime.Now - _startTime
+                LastUpdated = DateTime.UtcNow,
+                Uptime = DateTime.UtcNow - _startTime
             };
         }
     }

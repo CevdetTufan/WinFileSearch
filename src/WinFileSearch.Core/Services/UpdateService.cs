@@ -65,7 +65,7 @@ public class UpdateService : IUpdateService
             var dashIndex = versionString.IndexOf('-');
             if (dashIndex > 0)
             {
-                versionString = versionString.Substring(0, dashIndex);
+                versionString = versionString[..dashIndex];
             }
 
             if (!Version.TryParse(versionString, out var latestVersion))
@@ -79,34 +79,15 @@ public class UpdateService : IUpdateService
                 return null;
             }
 
-            // Find the self-contained download
-            string downloadUrl = string.Empty;
-            long fileSize = 0;
+            // Find the self-contained download, fallback to any zip file
+            var asset = release.Assets.FirstOrDefault(a =>
+                a.Name.Contains("selfcontained", StringComparison.OrdinalIgnoreCase) &&
+                a.Name.EndsWith(".zip", StringComparison.OrdinalIgnoreCase))
+                ?? release.Assets.FirstOrDefault(a =>
+                    a.Name.EndsWith(".zip", StringComparison.OrdinalIgnoreCase));
 
-            foreach (var asset in release.Assets)
-            {
-                if (asset.Name.Contains("selfcontained", StringComparison.OrdinalIgnoreCase) && 
-                    asset.Name.EndsWith(".zip", StringComparison.OrdinalIgnoreCase))
-                {
-                    downloadUrl = asset.BrowserDownloadUrl;
-                    fileSize = asset.Size;
-                    break;
-                }
-            }
-
-            // Fallback to any zip file
-            if (string.IsNullOrEmpty(downloadUrl) && release.Assets.Length > 0)
-            {
-                foreach (var asset in release.Assets)
-                {
-                    if (asset.Name.EndsWith(".zip", StringComparison.OrdinalIgnoreCase))
-                    {
-                        downloadUrl = asset.BrowserDownloadUrl;
-                        fileSize = asset.Size;
-                        break;
-                    }
-                }
-            }
+            var downloadUrl = asset?.BrowserDownloadUrl ?? string.Empty;
+            var fileSize = asset?.Size ?? 0;
 
             return new UpdateInfo
             {
@@ -209,7 +190,7 @@ public class UpdateService : IUpdateService
     }
 
     // GitHub API response models
-    private class GitHubRelease
+    private sealed class GitHubRelease
     {
         [JsonPropertyName("tag_name")]
         public string TagName { get; set; } = string.Empty;
@@ -230,7 +211,7 @@ public class UpdateService : IUpdateService
         public GitHubAsset[] Assets { get; set; } = [];
     }
 
-    private class GitHubAsset
+    private sealed class GitHubAsset
     {
         [JsonPropertyName("name")]
         public string Name { get; set; } = string.Empty;
