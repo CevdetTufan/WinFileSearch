@@ -85,12 +85,11 @@ public class FileRepository : IFileRepository
                 command.ExecuteNonQuery(); // Sync is faster for batch operations within transaction
             }
 
-            transaction.Commit();
-            await Task.CompletedTask; // Keep method async for interface compatibility
+            await transaction.CommitAsync();
         }
         catch
         {
-            transaction.Rollback();
+            await transaction.RollbackAsync();
             throw;
         }
     }
