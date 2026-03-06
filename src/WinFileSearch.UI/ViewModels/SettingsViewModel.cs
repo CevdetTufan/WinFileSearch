@@ -150,7 +150,10 @@ public partial class SettingsViewModel : ObservableObject, IDisposable
         {
             System.Diagnostics.Process.Start("explorer.exe", LogFilePath);
         }
-        catch { }
+        catch (Exception ex)
+        {
+            _loggingService.LogError("Failed to open log folder", ex);
+        }
     }
 
     partial void OnStartWithWindowsChanged(bool value)
