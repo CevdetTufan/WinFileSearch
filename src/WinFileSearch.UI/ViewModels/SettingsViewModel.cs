@@ -15,7 +15,7 @@ public class LanguageOption
     public string Name { get; set; } = string.Empty;
 }
 
-public partial class SettingsViewModel : ObservableObject
+public partial class SettingsViewModel : ObservableObject, IDisposable
 {
     private readonly IFileIndexService _indexService;
     private readonly IStartupService _startupService;
@@ -287,13 +287,14 @@ public partial class SettingsViewModel : ObservableObject
         IsIndexing = true;
         IndexingProgress = 0;
         IndexingStatus = "Rebuilding index...";
+        _indexingCts?.Dispose();
         _indexingCts = new CancellationTokenSource();
 
         var progress = new Progress<IndexingProgress>(p =>
         {
             IndexingProgress = p.PercentComplete;
             IndexingStatus = $"Indexing: {p.CurrentFile}";
-            
+
             if (p.IsCompleted)
             {
                 IndexingStatus = "Indexing completed";
@@ -320,6 +321,7 @@ public partial class SettingsViewModel : ObservableObject
         finally
         {
             IsIndexing = false;
+            _indexingCts?.Dispose();
             _indexingCts = null;
         }
     }
@@ -329,13 +331,14 @@ public partial class SettingsViewModel : ObservableObject
         IsIndexing = true;
         IndexingProgress = 0;
         IndexingStatus = $"Indexing {folderPath}...";
+        _indexingCts?.Dispose();
         _indexingCts = new CancellationTokenSource();
 
         var progress = new Progress<IndexingProgress>(p =>
         {
             IndexingProgress = p.PercentComplete;
             IndexingStatus = $"Indexing: {p.CurrentFile} ({p.ProcessedFiles}/{p.TotalFiles})";
-            
+
             if (p.IsCompleted)
             {
                 IndexingStatus = "Indexing completed";
@@ -358,6 +361,7 @@ public partial class SettingsViewModel : ObservableObject
         finally
         {
             IsIndexing = false;
+            _indexingCts?.Dispose();
             _indexingCts = null;
         }
     }
@@ -443,4 +447,9 @@ public partial class SettingsViewModel : ObservableObject
     }
 
     #endregion
+
+    public void Dispose()
+    {
+        _indexingCts?.Dispose();
+    }
 }
