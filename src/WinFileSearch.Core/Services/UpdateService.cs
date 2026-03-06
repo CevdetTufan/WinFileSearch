@@ -1,12 +1,8 @@
-using System;
 using System.Diagnostics;
-using System.IO;
-using System.Net.Http;
 using System.Net.Http.Json;
 using System.Reflection;
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using System.Threading.Tasks;
 using WinFileSearch.Core.Interfaces;
 using WinFileSearch.Core.Models;
 

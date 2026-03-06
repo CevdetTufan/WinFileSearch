@@ -1,5 +1,3 @@
-using System;
-
 namespace WinFileSearch.Core.Models;
 
 /// <summary>

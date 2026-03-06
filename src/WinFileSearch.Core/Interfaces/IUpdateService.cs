@@ -1,5 +1,3 @@
-using System;
-using System.Threading.Tasks;
 using WinFileSearch.Core.Models;
 
 namespace WinFileSearch.Core.Interfaces;
