@@ -18,6 +18,7 @@ public partial class SearchViewModel : ObservableObject, IDisposable
     private readonly ILoggingService _loggingService;
     private readonly Timer _debounceTimer;
     private const int DebounceDelayMs = 300;
+    private bool _disposed;
 
     [ObservableProperty]
     private string _searchQuery = string.Empty;
@@ -347,10 +348,25 @@ public partial class SearchViewModel : ObservableObject, IDisposable
 
     public void Dispose()
     {
-        _debounceTimer.Stop();
-        _debounceTimer.Elapsed -= OnDebounceTimerElapsed;
-        _debounceTimer.Dispose();
-        _historyService.HistoryChanged -= OnHistoryChanged;
-        _favoritesService.FavoritesChanged -= OnFavoritesChanged;
+        Dispose(true);
+        GC.SuppressFinalize(this);
+    }
+
+    protected virtual void Dispose(bool disposing)
+    {
+        if (_disposed)
+            return;
+
+        if (disposing)
+        {
+            // Dispose managed resources
+            _debounceTimer.Stop();
+            _debounceTimer.Elapsed -= OnDebounceTimerElapsed;
+            _debounceTimer.Dispose();
+            _historyService.HistoryChanged -= OnHistoryChanged;
+            _favoritesService.FavoritesChanged -= OnFavoritesChanged;
+        }
+
+        _disposed = true;
     }
 }
