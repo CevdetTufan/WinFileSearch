@@ -31,10 +31,10 @@ public partial class SearchViewModel : ObservableObject, IDisposable
     private FileCategory? _selectedCategory;
 
     // Computed properties for filter toggle synchronization
-    public bool IsAllSelected => _selectedCategory == null;
-    public bool IsDocumentsSelected => _selectedCategory == FileCategory.Document;
-    public bool IsImagesSelected => _selectedCategory == FileCategory.Image;
-    public bool IsMediaSelected => _selectedCategory == FileCategory.Media;
+    public bool IsAllSelected => SelectedCategory == null;
+    public bool IsDocumentsSelected => SelectedCategory == FileCategory.Document;
+    public bool IsImagesSelected => SelectedCategory == FileCategory.Image;
+    public bool IsMediaSelected => SelectedCategory == FileCategory.Media;
 
     [ObservableProperty]
     private FileEntry? _selectedFile;
