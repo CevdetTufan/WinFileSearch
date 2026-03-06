@@ -171,7 +171,7 @@ public class SearchHighlightConverter : IMultiValueConverter
 {
     public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture)
     {
-        if (values.Length < 2 || values[0] is not string text || values[1] is not string searchText)
+        if (values.Length < 2 || values[0] is not string text || values[1] is not string)
             return values[0] ?? "";
 
         return text; // For simplicity, just return text. Actual highlighting would need a TextBlock with Inlines
