@@ -24,6 +24,7 @@ public partial class SettingsViewModel : ObservableObject, IDisposable
     private readonly ILoggingService _loggingService;
     private readonly IUpdateService _updateService;
     private CancellationTokenSource? _indexingCts;
+    private bool _disposed;
 
     [ObservableProperty]
     private bool _backgroundIndexingEnabled;
@@ -453,6 +454,20 @@ public partial class SettingsViewModel : ObservableObject, IDisposable
 
     public void Dispose()
     {
-        _indexingCts?.Dispose();
+        Dispose(true);
+        GC.SuppressFinalize(this);
+    }
+
+    protected virtual void Dispose(bool disposing)
+    {
+        if (_disposed)
+            return;
+
+        if (disposing)
+        {
+            _indexingCts?.Dispose();
+        }
+
+        _disposed = true;
     }
 }
