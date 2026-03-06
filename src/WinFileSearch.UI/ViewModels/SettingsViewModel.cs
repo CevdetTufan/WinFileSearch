@@ -214,7 +214,7 @@ public partial class SettingsViewModel : ObservableObject, IDisposable
     }
 
     /// <summary>
-    /// Adds a folder by path (used by drag & drop)
+    /// Adds a folder by path (used by drag and drop)
     /// </summary>
     public Task AddFolderByPath(string path)
     {
