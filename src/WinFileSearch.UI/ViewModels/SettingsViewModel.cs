@@ -277,7 +277,10 @@ public partial class SettingsViewModel : ObservableObject
         if (IsIndexing)
         {
             // Cancel current indexing
-            _indexingCts?.Cancel();
+            if (_indexingCts != null)
+            {
+                await _indexingCts.CancelAsync();
+            }
             return;
         }
 
@@ -360,9 +363,12 @@ public partial class SettingsViewModel : ObservableObject
     }
 
     [RelayCommand]
-    private void CancelIndexing()
+    private async Task CancelIndexingAsync()
     {
-        _indexingCts?.Cancel();
+        if (_indexingCts != null)
+        {
+            await _indexingCts.CancelAsync();
+        }
     }
 
     #region Update Methods
