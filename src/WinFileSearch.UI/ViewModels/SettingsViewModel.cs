@@ -90,13 +90,13 @@ public partial class SettingsViewModel : ObservableObject, IDisposable
 
     private UpdateInfo? _updateInfo;
 
-    public ObservableCollection<IndexedFolder> IncludedFolders { get; } = new();
-    public ObservableCollection<IndexedFolder> ExcludedFolders { get; } = new();
-    public ObservableCollection<LanguageOption> AvailableLanguages { get; } = new()
-    {
-        new LanguageOption { Code = "en", Name = "English" },
+    public ObservableCollection<IndexedFolder> IncludedFolders { get; } = [];
+    public ObservableCollection<IndexedFolder> ExcludedFolders { get; } = [];
+    public ObservableCollection<LanguageOption> AvailableLanguages { get; } =
+	[
+		new LanguageOption { Code = "en", Name = "English" },
         new LanguageOption { Code = "tr", Name = "Türkçe" }
-    };
+    ];
 
     public SettingsViewModel(
         IFileIndexService indexService, 
