@@ -17,22 +17,19 @@ public class FileWatcherService(IFileRepository repository) : IFileWatcherServic
     public bool IsWatching => _isWatching;
 
 	public async Task StartWatchingAsync()
-    {
-        if (_isWatching)
-            return;
+	{
+		if (_isWatching)
+			return;
 
-        var folders = await _repository.GetIncludedFoldersAsync();
-        
-        foreach (var folder in folders)
-        {
-            if (Directory.Exists(folder.Path))
-            {
-                AddWatcher(folder.Path);
-            }
-        }
+		var folders = await _repository.GetIncludedFoldersAsync();
 
-        _isWatching = true;
-    }
+		foreach (var folder in folders.Where(f => Directory.Exists(f.Path)))
+		{
+			AddWatcher(folder.Path);
+		}
+
+		_isWatching = true;
+	}
 
     public void StopWatching()
     {
