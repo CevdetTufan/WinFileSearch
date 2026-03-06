@@ -162,5 +162,6 @@ public class FileSearchDbContext : IDisposable
         _connection?.Close();
         _connection?.Dispose();
         _connection = null;
+        GC.SuppressFinalize(this);
     }
 }
