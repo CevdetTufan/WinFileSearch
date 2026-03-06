@@ -7,23 +7,17 @@ namespace WinFileSearch.Core.Services;
 /// <summary>
 /// High-performance file indexing service with batch processing and optimized I/O.
 /// </summary>
-public class FileIndexService : IFileIndexService
+public class FileIndexService(IFileRepository repository, FileSearchDbContext dbContext) : IFileIndexService
 {
-    private readonly IFileRepository _repository;
-    private readonly FileSearchDbContext _dbContext;
+    private readonly IFileRepository _repository = repository;
+    private readonly FileSearchDbContext _dbContext = dbContext;
 
     // Optimized constants for better throughput
     private const int BatchSize = 1000;              // Increased from 500 for fewer DB transactions
     private const int ProgressReportInterval = 200;   // Report less frequently for better performance
     private const int UiYieldInterval = 2000;         // Yield to UI every N files
 
-    public FileIndexService(IFileRepository repository, FileSearchDbContext dbContext)
-    {
-        _repository = repository;
-        _dbContext = dbContext;
-    }
-
-    public async Task IndexFolderAsync(string folderPath, IProgress<IndexingProgress>? progress = null, CancellationToken cancellationToken = default)
+	public async Task IndexFolderAsync(string folderPath, IProgress<IndexingProgress>? progress = null, CancellationToken cancellationToken = default)
     {
         if (!Directory.Exists(folderPath))
             throw new DirectoryNotFoundException($"Folder not found: {folderPath}");
