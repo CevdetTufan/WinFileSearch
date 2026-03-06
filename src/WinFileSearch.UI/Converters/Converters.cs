@@ -119,7 +119,7 @@ public class RelativeTimeConverter : IValueConverter
         if (value is not DateTime dateTime)
             return "";
 
-        var timeSpan = DateTime.Now - dateTime;
+        var timeSpan = DateTime.UtcNow - dateTime.ToUniversalTime();
 
         if (timeSpan.TotalMinutes < 1)
             return "Just now";
