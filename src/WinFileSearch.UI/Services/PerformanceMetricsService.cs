@@ -52,7 +52,7 @@ public class PerformanceMetricsService : IPerformanceMetricsService
             {
                 TotalSearches = _searchTimes.Count,
                 AverageSearchTimeMs = _searchTimes.Count > 0 ? _searchTimes.Average() : 0,
-                LastSearchTimeMs = _searchTimes.Count > 0 ? _searchTimes[_searchTimes.Count - 1] : 0,
+                LastSearchTimeMs = _searchTimes.Count > 0 ? _searchTimes[^1] : 0,
                 TotalFilesIndexed = _totalFilesIndexed,
                 IndexingTimeMs = _lastIndexingTimeMs,
                 MemoryUsageMB = process.WorkingSet64 / (1024 * 1024),
