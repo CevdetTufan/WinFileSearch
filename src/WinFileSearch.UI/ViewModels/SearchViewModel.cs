@@ -1,6 +1,7 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.Timers;
 using WinFileSearch.Core.Services;
 using WinFileSearch.Data.Models;
@@ -194,7 +195,7 @@ public partial class SearchViewModel : ObservableObject, IDisposable
         ShowEmptyState = false;
         StatusMessage = "Searching...";
 
-        var startTime = DateTime.Now;
+        var stopwatch = Stopwatch.StartNew();
 
         try
         {
@@ -215,7 +216,8 @@ public partial class SearchViewModel : ObservableObject, IDisposable
                 SearchResults.Add(file);
             }
 
-            var duration = DateTime.Now - startTime;
+            stopwatch.Stop();
+            var duration = stopwatch.Elapsed;
             _loggingService.LogPerformance($"Search '{SearchQuery}'", duration);
 
             HasSearched = true;
