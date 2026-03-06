@@ -82,7 +82,7 @@ public class FileRepository : IFileRepository
                 folderIdParam.Value = file.FolderId;
                 categoryParam.Value = (int)file.Category;
 
-                command.ExecuteNonQuery(); // Sync is faster for batch operations within transaction
+                await command.ExecuteNonQueryAsync();
             }
 
             await transaction.CommitAsync();
