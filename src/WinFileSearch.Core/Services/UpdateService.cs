@@ -190,7 +190,7 @@ public class UpdateService : IUpdateService
     }
 
     // GitHub API response models
-    private class GitHubRelease
+    private sealed class GitHubRelease
     {
         [JsonPropertyName("tag_name")]
         public string TagName { get; set; } = string.Empty;
@@ -211,7 +211,7 @@ public class UpdateService : IUpdateService
         public GitHubAsset[] Assets { get; set; } = [];
     }
 
-    private class GitHubAsset
+    private sealed class GitHubAsset
     {
         [JsonPropertyName("name")]
         public string Name { get; set; } = string.Empty;
