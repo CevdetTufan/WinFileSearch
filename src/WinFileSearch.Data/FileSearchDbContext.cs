@@ -1,5 +1,4 @@
 using Microsoft.Data.Sqlite;
-using WinFileSearch.Data.Models;
 
 namespace WinFileSearch.Data;
 
@@ -10,6 +9,7 @@ public class FileSearchDbContext : IDisposable
 {
     private readonly string _connectionString;
     private SqliteConnection? _connection;
+    private bool _disposed;
     
     public FileSearchDbContext(string? dbPath = null)
     {
@@ -159,9 +159,22 @@ public class FileSearchDbContext : IDisposable
     
     public void Dispose()
     {
-        _connection?.Close();
-        _connection?.Dispose();
-        _connection = null;
+        Dispose(true);
         GC.SuppressFinalize(this);
+    }
+
+    protected virtual void Dispose(bool disposing)
+    {
+        if (_disposed)
+            return;
+
+        if (disposing)
+        {
+            _connection?.Close();
+            _connection?.Dispose();
+            _connection = null;
+        }
+
+        _disposed = true;
     }
 }
