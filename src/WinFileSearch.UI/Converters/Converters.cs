@@ -86,7 +86,7 @@ public class FileCategoryToBrushConverter : IValueConverter
 /// </summary>
 public class FileSizeConverter : IValueConverter
 {
-    private static readonly string[] SizeSuffixes = { "B", "KB", "MB", "GB", "TB" };
+    private static readonly string[] SizeSuffixes = ["B", "KB", "MB", "GB", "TB"];
 
     public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
     {
