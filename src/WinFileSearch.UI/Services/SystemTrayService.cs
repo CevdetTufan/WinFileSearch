@@ -17,6 +17,7 @@ public class SystemTrayService : ISystemTrayService
     private NotifyIcon? _notifyIcon;
     private Window? _mainWindow;
     private bool _isExiting;
+    private bool _disposed;
 
     public void Initialize(Window mainWindow)
     {
@@ -122,21 +123,35 @@ public class SystemTrayService : ISystemTrayService
         return Icon.FromHandle(bitmap.GetHicon());
     }
 
+    protected virtual void Dispose(bool disposing)
+    {
+        if (_disposed)
+        {
+            return;
+        }
+
+        if (disposing)
+        {
+            if (_mainWindow != null)
+            {
+                _mainWindow.StateChanged -= OnWindowStateChanged;
+                _mainWindow.Closing -= OnWindowClosing;
+            }
+
+            if (_notifyIcon != null)
+            {
+                _notifyIcon.Visible = false;
+                _notifyIcon.Dispose();
+                _notifyIcon = null;
+            }
+        }
+
+        _disposed = true;
+    }
+
     public void Dispose()
     {
-        if (_mainWindow != null)
-        {
-            _mainWindow.StateChanged -= OnWindowStateChanged;
-            _mainWindow.Closing -= OnWindowClosing;
-        }
-
-        if (_notifyIcon != null)
-        {
-            _notifyIcon.Visible = false;
-            _notifyIcon.Dispose();
-            _notifyIcon = null;
-        }
-
+        Dispose(true);
         GC.SuppressFinalize(this);
     }
 }
