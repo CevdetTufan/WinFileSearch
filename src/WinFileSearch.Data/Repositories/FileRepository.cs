@@ -6,6 +6,7 @@ namespace WinFileSearch.Data.Repositories;
 public class FileRepository : IFileRepository
 {
     private readonly FileSearchDbContext _context;
+    private const string SqlAnd = " AND ";
 
     public FileRepository(FileSearchDbContext context)
     {
@@ -68,7 +69,7 @@ public class FileRepository : IFileRepository
             var categoryParam = command.Parameters.Add("$category", SqliteType.Integer);
 
             // Prepare the command once for reuse
-            command.Prepare();
+            await command.PrepareAsync();
 
             foreach (var file in files)
             {
@@ -184,11 +185,11 @@ public class FileRepository : IFileRepository
         {
             if (command.CommandText.Contains("WHERE FilesSearch"))
             {
-                command.CommandText += " AND " + string.Join(" AND ", conditions);
+                command.CommandText += SqlAnd + string.Join(SqlAnd, conditions);
             }
             else
             {
-                command.CommandText += " AND " + string.Join(" AND ", conditions);
+                command.CommandText += SqlAnd + string.Join(SqlAnd, conditions);
             }
         }
         
