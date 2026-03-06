@@ -38,6 +38,7 @@ public class GlobalHotkeyService : IGlobalHotkeyService
 
     private IntPtr _windowHandle;
     private HwndSource? _source;
+    private bool _disposed;
 
     public event EventHandler? HotkeyPressed;
 
@@ -68,7 +69,7 @@ public class GlobalHotkeyService : IGlobalHotkeyService
 
         // Register Win+Shift+F
         var success = RegisterHotKey(_windowHandle, HOTKEY_ID, MOD_WIN | MOD_SHIFT | MOD_NOREPEAT, VK_F);
-        
+
         if (!success)
         {
             System.Diagnostics.Debug.WriteLine("Failed to register global hotkey Win+Shift+F");
@@ -85,15 +86,34 @@ public class GlobalHotkeyService : IGlobalHotkeyService
         return IntPtr.Zero;
     }
 
-    public void Dispose()
+    protected virtual void Dispose(bool disposing)
     {
-        _source?.RemoveHook(HwndHook);
+        if (_disposed)
+        {
+            return;
+        }
+
+        if (disposing)
+        {
+            _source?.RemoveHook(HwndHook);
+        }
 
         if (_windowHandle != IntPtr.Zero)
         {
             UnregisterHotKey(_windowHandle, HOTKEY_ID);
         }
 
+        _disposed = true;
+    }
+
+    public void Dispose()
+    {
+        Dispose(true);
         GC.SuppressFinalize(this);
+    }
+
+    ~GlobalHotkeyService()
+    {
+        Dispose(false);
     }
 }
