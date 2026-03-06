@@ -88,10 +88,12 @@ public class GlobalHotkeyService : IGlobalHotkeyService
     public void Dispose()
     {
         _source?.RemoveHook(HwndHook);
-        
+
         if (_windowHandle != IntPtr.Zero)
         {
             UnregisterHotKey(_windowHandle, HOTKEY_ID);
         }
+
+        GC.SuppressFinalize(this);
     }
 }
