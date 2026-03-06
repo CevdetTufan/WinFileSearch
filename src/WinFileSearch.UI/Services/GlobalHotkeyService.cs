@@ -13,14 +13,16 @@ public interface IGlobalHotkeyService : IDisposable
     event EventHandler? HotkeyPressed;
 }
 
-public class GlobalHotkeyService : IGlobalHotkeyService
+public partial class GlobalHotkeyService : IGlobalHotkeyService
 {
     // Win32 API imports
-    [DllImport("user32.dll")]
-    private static extern bool RegisterHotKey(IntPtr hWnd, int id, uint fsModifiers, uint vk);
+    [LibraryImport("user32.dll")]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    private static partial bool RegisterHotKey(IntPtr hWnd, int id, uint fsModifiers, uint vk);
 
-    [DllImport("user32.dll")]
-    private static extern bool UnregisterHotKey(IntPtr hWnd, int id);
+    [LibraryImport("user32.dll")]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    private static partial bool UnregisterHotKey(IntPtr hWnd, int id);
 
     // Hotkey ID
     private const int HOTKEY_ID = 9000;
