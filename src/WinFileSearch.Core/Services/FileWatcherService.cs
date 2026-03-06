@@ -2,10 +2,10 @@ using WinFileSearch.Data.Repositories;
 
 namespace WinFileSearch.Core.Services;
 
-public class FileWatcherService : IFileWatcherService, IDisposable
+public class FileWatcherService(IFileRepository repository) : IFileWatcherService, IDisposable
 {
     private readonly Dictionary<string, FileSystemWatcher> _watchers = new();
-    private readonly IFileRepository _repository;
+    private readonly IFileRepository _repository = repository;
     private bool _isWatching;
 
     public event EventHandler<FileSystemEventArgs>? FileCreated;
@@ -15,12 +15,7 @@ public class FileWatcherService : IFileWatcherService, IDisposable
 
     public bool IsWatching => _isWatching;
 
-    public FileWatcherService(IFileRepository repository)
-    {
-        _repository = repository;
-    }
-
-    public async Task StartWatchingAsync()
+	public async Task StartWatchingAsync()
     {
         if (_isWatching)
             return;
