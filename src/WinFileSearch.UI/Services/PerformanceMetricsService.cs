@@ -39,7 +39,7 @@ public class PerformanceMetricsService : IPerformanceMetricsService
 
     public PerformanceMetricsService()
     {
-        _startTime = DateTime.Now;
+        _startTime = DateTime.UtcNow;
     }
 
     public PerformanceMetrics GetMetrics()
@@ -57,8 +57,8 @@ public class PerformanceMetricsService : IPerformanceMetricsService
                 IndexingTimeMs = _lastIndexingTimeMs,
                 MemoryUsageMB = process.WorkingSet64 / (1024 * 1024),
                 CpuUsagePercent = 0, // CPU usage requires more complex tracking
-                LastUpdated = DateTime.Now,
-                Uptime = DateTime.Now - _startTime
+                LastUpdated = DateTime.UtcNow,
+                Uptime = DateTime.UtcNow - _startTime
             };
         }
     }
