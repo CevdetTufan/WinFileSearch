@@ -129,5 +129,6 @@ public class FileWatcherService(IFileRepository repository) : IFileWatcherServic
     public void Dispose()
     {
         StopWatching();
+        GC.SuppressFinalize(this);
     }
 }
