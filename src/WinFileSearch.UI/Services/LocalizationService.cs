@@ -82,7 +82,7 @@ public class LocalizationService : ILocalizationService
         return _languageNames.TryGetValue(code, out var name) ? name : code;
     }
 
-    private void LoadLanguageResources(string languageCode)
+    private static void LoadLanguageResources(string languageCode)
     {
         try
         {
