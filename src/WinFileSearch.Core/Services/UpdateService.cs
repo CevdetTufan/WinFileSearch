@@ -65,7 +65,7 @@ public class UpdateService : IUpdateService
             var dashIndex = versionString.IndexOf('-');
             if (dashIndex > 0)
             {
-                versionString = versionString.Substring(0, dashIndex);
+                versionString = versionString[..dashIndex];
             }
 
             if (!Version.TryParse(versionString, out var latestVersion))
