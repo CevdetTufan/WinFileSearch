@@ -1,3 +1,4 @@
+using System.Globalization;
 using Microsoft.Data.Sqlite;
 using WinFileSearch.Data.Models;
 
@@ -417,8 +418,8 @@ public class FileRepository : IFileRepository
             Extension = reader.IsDBNull(reader.GetOrdinal("Extension")) ? "" : reader.GetString(reader.GetOrdinal("Extension")),
             Directory = reader.IsDBNull(reader.GetOrdinal("Directory")) ? "" : reader.GetString(reader.GetOrdinal("Directory")),
             Size = reader.IsDBNull(reader.GetOrdinal("Size")) ? 0 : reader.GetInt64(reader.GetOrdinal("Size")),
-            CreatedAt = DateTime.TryParse(reader.GetString(reader.GetOrdinal("CreatedAt")), out var created) ? created : DateTime.MinValue,
-            ModifiedAt = DateTime.TryParse(reader.GetString(reader.GetOrdinal("ModifiedAt")), out var modified) ? modified : DateTime.MinValue,
+            CreatedAt = DateTime.TryParse(reader.GetString(reader.GetOrdinal("CreatedAt")), CultureInfo.InvariantCulture, DateTimeStyles.RoundtripKind, out var created) ? created : DateTime.MinValue,
+            ModifiedAt = DateTime.TryParse(reader.GetString(reader.GetOrdinal("ModifiedAt")), CultureInfo.InvariantCulture, DateTimeStyles.RoundtripKind, out var modified) ? modified : DateTime.MinValue,
             FolderId = reader.IsDBNull(reader.GetOrdinal("FolderId")) ? 0 : reader.GetInt64(reader.GetOrdinal("FolderId")),
             Category = (FileCategory)(reader.IsDBNull(reader.GetOrdinal("Category")) ? 0 : reader.GetInt32(reader.GetOrdinal("Category")))
         };
@@ -430,7 +431,7 @@ public class FileRepository : IFileRepository
         {
             Id = reader.GetInt64(reader.GetOrdinal("Id")),
             Path = reader.GetString(reader.GetOrdinal("Path")),
-            LastIndexed = DateTime.TryParse(reader.GetString(reader.GetOrdinal("LastIndexed")), out var indexed) ? indexed : DateTime.MinValue,
+            LastIndexed = DateTime.TryParse(reader.GetString(reader.GetOrdinal("LastIndexed")), CultureInfo.InvariantCulture, DateTimeStyles.RoundtripKind, out var indexed) ? indexed : DateTime.MinValue,
             FileCount = reader.IsDBNull(reader.GetOrdinal("FileCount")) ? 0 : reader.GetInt32(reader.GetOrdinal("FileCount")),
             TotalSize = reader.IsDBNull(reader.GetOrdinal("TotalSize")) ? 0 : reader.GetInt64(reader.GetOrdinal("TotalSize")),
             IsExcluded = reader.GetInt32(reader.GetOrdinal("IsExcluded")) == 1
