@@ -17,7 +17,6 @@ public partial class MainWindow : Window
     private readonly SearchPage _searchPage;
     private readonly SettingsPage _settingsPage;
     private readonly SearchViewModel _searchViewModel;
-    private readonly INavigationService _navigationService;
 
     // Commands for keyboard shortcuts
     public ICommand NavigateToHomeCommand { get; }
@@ -38,7 +37,6 @@ public partial class MainWindow : Window
         _searchPage = searchPage;
         _settingsPage = settingsPage;
         _searchViewModel = searchViewModel;
-        _navigationService = navigationService;
 
         // Initialize commands
         NavigateToHomeCommand = new RelayCommand(() => { HomeNav.IsChecked = true; });
