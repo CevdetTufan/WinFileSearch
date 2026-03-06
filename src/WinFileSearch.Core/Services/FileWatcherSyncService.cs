@@ -180,5 +180,6 @@ public class FileWatcherSyncService : IDisposable
         _watcherService.FileRenamed -= OnFileRenamed;
         _watcherService.FileChanged -= OnFileChanged;
         _syncLock.Dispose();
+        GC.SuppressFinalize(this);
     }
 }
