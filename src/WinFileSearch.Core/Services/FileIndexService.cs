@@ -12,10 +12,66 @@ public class FileIndexService(IFileRepository repository, FileSearchDbContext db
     private readonly IFileRepository _repository = repository;
     private readonly FileSearchDbContext _dbContext = dbContext;
 
-    // Optimized constants for better throughput
-    private const int BatchSize = 1000;              // Increased from 500 for fewer DB transactions
-    private const int ProgressReportInterval = 200;   // Report less frequently for better performance
-    private const int UiYieldInterval = 2000;         // Yield to UI every N files
+	// Optimized constants for better throughput
+	private const int BatchSize = 1000;              // Increased from 500 for fewer DB transactions
+	private const int ProgressReportInterval = 200;   // Report less frequently for better performance
+	private const int UiYieldInterval = 2000;         // Yield to UI every N files
+
+	private static bool IsExcludedPath(string filePath, List<IndexedFolder> excludedFolders)
+	{
+		var directory = Path.GetDirectoryName(filePath) ?? "";
+		return excludedFolders.Any(ef => directory.StartsWith(ef.Path, StringComparison.OrdinalIgnoreCase));
+	}
+
+	private static FileEntry? TryCreateFileEntry(string filePath, long folderId)
+	{
+		try
+		{
+			var fileInfo = new FileInfo(filePath);
+			var extension = fileInfo.Extension.ToLowerInvariant();
+
+			return new FileEntry
+			{
+				FileName = fileInfo.Name,
+				FullPath = fileInfo.FullName,
+				Extension = extension,
+				Directory = fileInfo.DirectoryName ?? "",
+				Size = fileInfo.Length,
+				CreatedAt = fileInfo.CreationTime,
+				ModifiedAt = fileInfo.LastWriteTime,
+				FolderId = folderId,
+				Category = FileCategoryHelper.GetCategory(extension)
+			};
+		}
+		catch
+		{
+			return null;
+		}
+	}
+
+	private async Task ProcessBatchAsync(
+		List<FileEntry> batch,
+		IProgress<IndexingProgress>? progress,
+		IndexingProgress progressInfo,
+		int progressCounter,
+		CancellationToken cancellationToken)
+	{
+		if (batch.Count >= BatchSize)
+		{
+			await _repository.InsertFilesAsync(batch);
+			batch.Clear();
+			progress?.Report(progressInfo);
+			await Task.Delay(1, cancellationToken);
+		}
+		else if (progressCounter % ProgressReportInterval == 0)
+		{
+			progress?.Report(progressInfo);
+			if (progressCounter % UiYieldInterval == 0)
+			{
+				await Task.Yield();
+			}
+		}
+	}
 
 	public async Task IndexFolderAsync(string folderPath, IProgress<IndexingProgress>? progress = null, CancellationToken cancellationToken = default)
     {
@@ -83,65 +139,22 @@ public class FileIndexService(IFileRepository repository, FileSearchDbContext db
                 return;
             }
 
-            // Skip excluded folders
-            var directory = Path.GetDirectoryName(filePath) ?? "";
-            if (excludedFolders.Any(ef => directory.StartsWith(ef.Path, StringComparison.OrdinalIgnoreCase)))
-            {
+            if (IsExcludedPath(filePath, excludedFolders))
                 continue;
-            }
 
-            try
-            {
-                var fileInfo = new FileInfo(filePath);
-                var extension = fileInfo.Extension.ToLowerInvariant();
+            var fileEntry = TryCreateFileEntry(filePath, folder.Id);
+            if (fileEntry == null)
+                continue;
 
-                var fileEntry = new FileEntry
-                {
-                    FileName = fileInfo.Name,
-                    FullPath = fileInfo.FullName,
-                    Extension = extension,
-                    Directory = fileInfo.DirectoryName ?? "",
-                    Size = fileInfo.Length,
-                    CreatedAt = fileInfo.CreationTime,
-                    ModifiedAt = fileInfo.LastWriteTime,
-                    FolderId = folder.Id,
-                    Category = FileCategoryHelper.GetCategory(extension)
-                };
+            batch.Add(fileEntry);
+            totalSize += fileEntry.Size;
+            fileCount++;
+            progressCounter++;
 
-                batch.Add(fileEntry);
-                totalSize += fileInfo.Length;
-                fileCount++;
-                progressCounter++;
+            progressInfo.ProcessedFiles++;
+            progressInfo.CurrentFile = fileEntry.FileName;
 
-                progressInfo.ProcessedFiles++;
-                progressInfo.CurrentFile = fileInfo.Name;
-
-                // Insert in batches
-                if (batch.Count >= BatchSize)
-                {
-                    await _repository.InsertFilesAsync(batch);
-                    batch.Clear();
-                    progress?.Report(progressInfo);
-
-                    // Yield to UI thread to prevent freezing
-                    await Task.Delay(1, cancellationToken);
-                }
-                else if (progressCounter % ProgressReportInterval == 0)
-                {
-                    // Report progress periodically for UI responsiveness
-                    progress?.Report(progressInfo);
-
-                    // Yield to UI less frequently for better throughput
-                    if (progressCounter % UiYieldInterval == 0)
-                    {
-                        await Task.Yield();
-                    }
-                }
-            }
-            catch (Exception)
-            {
-                // Skip files that can't be accessed
-            }
+            await ProcessBatchAsync(batch, progress, progressInfo, progressCounter, cancellationToken);
         }
 
         // Insert remaining files
