@@ -32,7 +32,7 @@ public interface IPerformanceMetricsService
 public class PerformanceMetricsService : IPerformanceMetricsService
 {
     private readonly DateTime _startTime;
-    private readonly List<double> _searchTimes = new();
+    private readonly List<double> _searchTimes = [];
     private readonly object _lock = new();
     private long _totalFilesIndexed;
     private double _lastIndexingTimeMs;
