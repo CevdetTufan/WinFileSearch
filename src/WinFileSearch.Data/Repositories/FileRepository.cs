@@ -45,7 +45,7 @@ public class FileRepository : IFileRepository
     public async Task InsertFilesAsync(IEnumerable<FileEntry> files)
     {
         var connection = _context.GetConnection();
-        using var transaction = connection.BeginTransaction();
+        await using var transaction = (SqliteTransaction)await connection.BeginTransactionAsync();
 
         try
         {
