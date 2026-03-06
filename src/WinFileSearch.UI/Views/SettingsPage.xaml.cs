@@ -81,13 +81,10 @@ public partial class SettingsPage : Page
             var paths = (string[]?)e.Data.GetData(DataFormats.FileDrop);
             if (paths != null)
             {
-                foreach (var path in paths)
+                foreach (var path in paths.Where(Directory.Exists))
                 {
-                    if (Directory.Exists(path))
-                    {
-                        // Add folder via ViewModel command
-                        _viewModel.AddFolderByPath(path);
-                    }
+                    // Add folder via ViewModel command
+                    _viewModel.AddFolderByPath(path);
                 }
             }
         }
