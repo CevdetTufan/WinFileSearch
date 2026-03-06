@@ -14,6 +14,7 @@ namespace WinFileSearch.UI.Views;
 
 public partial class SettingsPage : Page
 {
+    private const string SecondaryBackgroundBrushKey = "SecondaryBackgroundBrush";
     private readonly SettingsViewModel _viewModel;
     private Border? _dropZone;
 
@@ -60,8 +61,8 @@ public partial class SettingsPage : Page
         // Reset visual feedback
         if (_dropZone != null)
         {
-            _dropZone.BorderBrush = (Brush)Application.Current.Resources["SecondaryBackgroundBrush"];
-            _dropZone.Background = (Brush)Application.Current.Resources["SecondaryBackgroundBrush"];
+            _dropZone.BorderBrush = (Brush)Application.Current.Resources[SecondaryBackgroundBrushKey];
+            _dropZone.Background = (Brush)Application.Current.Resources[SecondaryBackgroundBrushKey];
         }
         e.Handled = true;
     }
@@ -71,8 +72,8 @@ public partial class SettingsPage : Page
         // Reset visual feedback
         if (_dropZone != null)
         {
-            _dropZone.BorderBrush = (Brush)Application.Current.Resources["SecondaryBackgroundBrush"];
-            _dropZone.Background = (Brush)Application.Current.Resources["SecondaryBackgroundBrush"];
+            _dropZone.BorderBrush = (Brush)Application.Current.Resources[SecondaryBackgroundBrushKey];
+            _dropZone.Background = (Brush)Application.Current.Resources[SecondaryBackgroundBrushKey];
         }
 
         if (e.Data.GetDataPresent(DataFormats.FileDrop))
