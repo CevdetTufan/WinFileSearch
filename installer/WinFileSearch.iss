@@ -1,6 +1,6 @@
 ; WinFileSearch Installer Script
 #define MyAppName "WinFileSearch"
-#define MyAppVersion "1.0.0"
+#define MyAppVersion "1.2.0"
 #define MyAppPublisher "Cevdet Tufan | wordivio.com"
 #define MyAppURL "https://github.com/CevdetTufan/WinFileSearch"
 #define MyAppExeName "WinFileSearch.UI.exe"
