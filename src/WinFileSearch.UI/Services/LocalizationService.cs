@@ -18,7 +18,6 @@ public interface ILocalizationService
 
 public class LocalizationService : ILocalizationService
 {
-    private readonly ISettingsService _settingsService;
     private readonly Dictionary<string, string> _languageNames = new()
     {
         { "en", "English" },
@@ -32,10 +31,8 @@ public class LocalizationService : ILocalizationService
 
     public LocalizationService(ISettingsService settingsService)
     {
-        _settingsService = settingsService;
-        
         // Load saved language or detect from system
-        var savedLanguage = _settingsService.Settings.Theme; // Reusing Theme field temporarily
+        var savedLanguage = settingsService.Settings.Theme; // Reusing Theme field temporarily
         if (string.IsNullOrEmpty(savedLanguage) || savedLanguage == "Dark")
         {
             // Detect from system
