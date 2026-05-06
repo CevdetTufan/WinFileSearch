@@ -72,6 +72,10 @@ public partial class App : System.Windows.Application
         loggingService.Initialize();
         loggingService.LogInfo("Application starting...");
 
+        // Initialize localization service early (sets culture for date formatting)
+        var localizationService = _serviceProvider.GetRequiredService<ILocalizationService>();
+        loggingService.LogInfo($"Localization initialized: {localizationService.CurrentLanguage}");
+
         // Initialize database
         var dbContext = _serviceProvider.GetRequiredService<FileSearchDbContext>();
         await dbContext.InitializeDatabaseAsync();

@@ -1,6 +1,7 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using System.Collections.ObjectModel;
+using System.Windows;
 using WinFileSearch.Core.Interfaces;
 using WinFileSearch.Core.Models;
 using WinFileSearch.Core.Services;
@@ -13,6 +14,8 @@ public class LanguageOption
 {
     public string Code { get; set; } = string.Empty;
     public string Name { get; set; } = string.Empty;
+
+    public override string ToString() => Name;
 }
 
 public partial class SettingsViewModel : ObservableObject, IDisposable
@@ -67,7 +70,7 @@ public partial class SettingsViewModel : ObservableObject, IDisposable
     private string _logFilePath = string.Empty;
 
     [ObservableProperty]
-    private string _selectedLanguage = "en";
+    private LanguageOption? _selectedLanguageOption;
 
     // Update properties
     [ObservableProperty]
@@ -117,6 +120,8 @@ public partial class SettingsViewModel : ObservableObject, IDisposable
         StartWithWindows = _startupService.IsStartupEnabled;
         MinimizeToTray = _settingsService.Settings.MinimizeToTray;
         BackgroundIndexingEnabled = _settingsService.Settings.BackgroundIndexing;
+        var savedLanguage = _settingsService.Settings.Language ?? "en";
+        SelectedLanguageOption = AvailableLanguages.FirstOrDefault(l => l.Code == savedLanguage) ?? AvailableLanguages[0];
         LogFilePath = _loggingService.GetLogFilePath();
         CurrentVersion = $"v{_updateService.CurrentVersion}";
 
@@ -174,6 +179,17 @@ public partial class SettingsViewModel : ObservableObject, IDisposable
     {
         _settingsService.Settings.BackgroundIndexing = value;
         _settingsService.Save();
+    }
+
+    partial void OnSelectedLanguageOptionChanged(LanguageOption? value)
+    {
+        if (value == null) return;
+
+        _settingsService.Settings.Language = value.Code;
+        _settingsService.Save();
+
+        // Use LocalizationService to change language (handles both resources and culture)
+        LocalizationService.Instance?.SetLanguage(value.Code);
     }
 
     private async Task LoadDataAsync()

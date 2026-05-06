@@ -121,25 +121,34 @@ public class RelativeTimeConverter : IValueConverter
 
         var timeSpan = DateTime.UtcNow - dateTime.ToUniversalTime();
 
-        if (timeSpan.TotalMinutes < 1)
-            return "Just now";
-        if (timeSpan.TotalMinutes < 60)
-            return $"{(int)timeSpan.TotalMinutes}m ago";
-        if (timeSpan.TotalHours < 24)
-            return $"{(int)timeSpan.TotalHours}h ago";
-        if (timeSpan.TotalDays < 7)
-            return $"{(int)timeSpan.TotalDays}d ago";
-        if (timeSpan.TotalDays < 30)
-            return $"{(int)(timeSpan.TotalDays / 7)}w ago";
-        if (timeSpan.TotalDays < 365)
-            return dateTime.ToString("MMM d");
+        // Use the app's selected culture, not system culture
+        var currentCulture = WinFileSearch.UI.Services.LocalizationService.Instance?.CurrentCulture 
+                             ?? new CultureInfo("en-US"); // Default to English, not system
 
-        return dateTime.ToString("MMM d, yyyy");
+        if (timeSpan.TotalMinutes < 1)
+            return GetLocalizedString("Time_JustNow");
+        if (timeSpan.TotalMinutes < 60)
+            return string.Format(GetLocalizedString("Time_MinutesAgo"), (int)timeSpan.TotalMinutes);
+        if (timeSpan.TotalHours < 24)
+            return string.Format(GetLocalizedString("Time_HoursAgo"), (int)timeSpan.TotalHours);
+        if (timeSpan.TotalDays < 7)
+            return string.Format(GetLocalizedString("Time_DaysAgo"), (int)timeSpan.TotalDays);
+        if (timeSpan.TotalDays < 30)
+            return string.Format(GetLocalizedString("Time_WeeksAgo"), (int)(timeSpan.TotalDays / 7));
+        if (timeSpan.TotalDays < 365)
+            return dateTime.ToString("MMM d", currentCulture);
+
+        return dateTime.ToString("MMM d, yyyy", currentCulture);
     }
 
     public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
     {
         throw new NotImplementedException();
+    }
+
+    private static string GetLocalizedString(string key)
+    {
+        return Application.Current.TryFindResource(key) as string ?? key;
     }
 }
 
