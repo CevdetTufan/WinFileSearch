@@ -18,14 +18,14 @@
         <StackPanel Margin="20">
             <!-- Header -->
             <Grid Margin="0,0,0,24">
-                <TextBlock Text="Indexing Settings" 
+                <TextBlock Text="{DynamicResource Settings_Title}" 
                            FontSize="22" 
                            FontWeight="SemiBold"
                            Foreground="{StaticResource PrimaryTextBrush}"/>
             </Grid>
 
             <!-- General Section -->
-            <TextBlock Text="GENERAL" 
+            <TextBlock Text="{DynamicResource Settings_General}" 
                        FontSize="11" 
                        FontWeight="SemiBold"
                        Foreground="{StaticResource SecondaryTextBrush}"
@@ -39,11 +39,11 @@
                         <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
                     <StackPanel Grid.Column="0">
-                        <TextBlock Text="Background Indexing" 
+                        <TextBlock Text="{DynamicResource Settings_BackgroundIndexing}" 
                                    FontSize="14" 
                                    FontWeight="Medium"
                                    Foreground="{StaticResource PrimaryTextBrush}"/>
-                        <TextBlock Text="Allow the app to update file records while minimized" 
+                        <TextBlock Text="{DynamicResource Settings_BackgroundIndexingDesc}" 
                                    FontSize="12"
                                    Foreground="{StaticResource SecondaryTextBrush}"
                                    Margin="0,4,0,0"/>
@@ -63,11 +63,11 @@
                         <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
                     <StackPanel Grid.Column="0">
-                        <TextBlock Text="Start with Windows" 
+                        <TextBlock Text="{DynamicResource Settings_StartWithWindows}" 
                                    FontSize="14" 
                                    FontWeight="Medium"
                                    Foreground="{StaticResource PrimaryTextBrush}"/>
-                        <TextBlock Text="Launch WinFileSearch automatically when Windows starts" 
+                        <TextBlock Text="{DynamicResource Settings_StartWithWindowsDesc}" 
                                    FontSize="12"
                                    Foreground="{StaticResource SecondaryTextBrush}"
                                    Margin="0,4,0,0"/>
@@ -87,11 +87,11 @@
                         <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
                     <StackPanel Grid.Column="0">
-                        <TextBlock Text="Minimize to System Tray" 
+                        <TextBlock Text="{DynamicResource Settings_MinimizeToTray}" 
                                    FontSize="14" 
                                    FontWeight="Medium"
                                    Foreground="{StaticResource PrimaryTextBrush}"/>
-                        <TextBlock Text="Keep running in background when window is closed" 
+                        <TextBlock Text="{DynamicResource Settings_MinimizeToTrayDesc}" 
                                    FontSize="12"
                                    Foreground="{StaticResource SecondaryTextBrush}"
                                    Margin="0,4,0,0"/>
@@ -111,35 +111,37 @@
                         <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
                     <StackPanel Grid.Column="0">
-                        <TextBlock Text="Language" 
+                        <TextBlock Text="{DynamicResource Settings_Language}" 
                                    FontSize="14" 
                                    FontWeight="Medium"
                                    Foreground="{StaticResource PrimaryTextBrush}"/>
-                        <TextBlock Text="Select your preferred language" 
+                        <TextBlock Text="{DynamicResource Settings_LanguageDesc}" 
                                    FontSize="12"
                                    Foreground="{StaticResource SecondaryTextBrush}"
                                    Margin="0,4,0,0"/>
                     </StackPanel>
                     <ComboBox Grid.Column="1"
                               ItemsSource="{Binding AvailableLanguages}"
-                              SelectedValue="{Binding SelectedLanguage}"
-                              SelectedValuePath="Code"
-                              DisplayMemberPath="Name"
-                              Width="120"
-                              VerticalAlignment="Center"
-                              Background="{StaticResource SecondaryBackgroundBrush}"
-                              Foreground="{StaticResource PrimaryTextBrush}"/>
+                              SelectedItem="{Binding SelectedLanguageOption}"
+                              Width="140"
+                              VerticalAlignment="Center">
+                        <ComboBox.ItemTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding Name}" Foreground="{StaticResource PrimaryTextBrush}"/>
+                            </DataTemplate>
+                        </ComboBox.ItemTemplate>
+                    </ComboBox>
                 </Grid>
             </Border>
 
             <!-- Rebuild Index -->
             <Border Style="{StaticResource CardPanelStyle}" Margin="0,0,0,24">
                 <StackPanel>
-                    <TextBlock Text="Rebuild Index" 
+                    <TextBlock Text="{DynamicResource Settings_RebuildIndex}" 
                                FontSize="14" 
                                FontWeight="Medium"
                                Foreground="{StaticResource PrimaryTextBrush}"/>
-                    <TextBlock Text="Clear current database and start a fresh scan of all folders" 
+                    <TextBlock Text="{DynamicResource Settings_RebuildIndexDesc}" 
                                FontSize="12"
                                Foreground="{StaticResource SecondaryTextBrush}"
                                Margin="0,4,0,12"/>
@@ -160,10 +162,10 @@
                     <Button Command="{Binding RebuildIndexCommand}">
                         <Button.Style>
                             <Style TargetType="Button" BasedOn="{StaticResource PrimaryButtonStyle}">
-                                <Setter Property="Content" Value="Rebuild Database Now"/>
+                                <Setter Property="Content" Value="{DynamicResource Settings_RebuildNow}"/>
                                 <Style.Triggers>
                                     <DataTrigger Binding="{Binding IsIndexing}" Value="True">
-                                        <Setter Property="Content" Value="Cancel Rebuild"/>
+                                        <Setter Property="Content" Value="{DynamicResource Settings_CancelRebuild}"/>
                                     </DataTrigger>
                                 </Style.Triggers>
                             </Style>
@@ -179,13 +181,13 @@
                     <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
                 <TextBlock Grid.Column="0"
-                           Text="INCLUDED FOLDERS" 
+                           Text="{DynamicResource Settings_IncludedFolders}" 
                            FontSize="11" 
                            FontWeight="SemiBold"
                            Foreground="{StaticResource SecondaryTextBrush}"
                            VerticalAlignment="Center"/>
                 <Button Grid.Column="1"
-                        Content="⊕ Add Folder"
+                        Content="{DynamicResource Settings_AddFolder}"
                         Style="{StaticResource SecondaryButtonStyle}"
                         Command="{Binding AddFolderCommand}"/>
             </Grid>
@@ -208,11 +210,11 @@
                           Stretch="Uniform"
                           HorizontalAlignment="Center"
                           Margin="0,0,0,12"/>
-                    <TextBlock Text="Drag and drop folders here"
+                    <TextBlock Text="{DynamicResource Settings_DragDropHint}"
                                FontSize="14"
                                Foreground="{StaticResource SecondaryTextBrush}"
                                HorizontalAlignment="Center"/>
-                    <TextBlock Text="or use the 'Add Folder' button above"
+                    <TextBlock Text="{DynamicResource Settings_DragDropSubHint}"
                                FontSize="12"
                                Foreground="{StaticResource SecondaryTextBrush}"
                                HorizontalAlignment="Center"
@@ -277,13 +279,13 @@
                     <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
                 <TextBlock Grid.Column="0"
-                           Text="EXCLUDED FOLDERS" 
+                           Text="{DynamicResource Settings_ExcludedFolders}" 
                            FontSize="11" 
                            FontWeight="SemiBold"
                            Foreground="{StaticResource SecondaryTextBrush}"
                            VerticalAlignment="Center"/>
                 <Button Grid.Column="1"
-                        Content="⊕ Add Exclusion"
+                        Content="{DynamicResource Settings_AddExclusion}"
                         Style="{StaticResource SecondaryButtonStyle}"
                         Command="{Binding AddExclusionCommand}"/>
             </Grid>
@@ -313,7 +315,7 @@
                                     <TextBlock Text="{Binding Path}"
                                                FontSize="14"
                                                Foreground="{StaticResource PrimaryTextBrush}"/>
-                                    <TextBlock Text="Excluded from indexing"
+                                    <TextBlock Text="{DynamicResource Common_ExcludedFromIndexing}"
                                                FontSize="12"
                                                Foreground="{StaticResource SecondaryTextBrush}"
                                                Margin="0,4,0,0"/>
@@ -337,23 +339,32 @@
 
             <!-- Stats -->
             <StackPanel HorizontalAlignment="Center" Margin="0,20,0,0">
-                <TextBlock HorizontalAlignment="Center"
-                           FontSize="12"
-                           Foreground="{StaticResource SecondaryTextBrush}">
-                    <Run Text="Last indexed: "/>
-                    <Run Text="{Binding LastIndexed, StringFormat='MMM d, yyyy h:mm tt', TargetNullValue='Never'}"/>
-                </TextBlock>
-                <TextBlock HorizontalAlignment="Center"
-                           FontSize="12"
-                           Foreground="{StaticResource SecondaryTextBrush}"
-                           Margin="0,4,0,0">
-                    <Run Text="Total files indexed: "/>
-                    <Run Text="{Binding TotalFilesIndexed, StringFormat='{}{0:N0}'}"/>
-                </TextBlock>
+                <StackPanel HorizontalAlignment="Center" Orientation="Horizontal">
+                    <TextBlock Text="{DynamicResource Common_LastIndexed}"
+                               FontSize="12"
+                               Foreground="{StaticResource SecondaryTextBrush}"/>
+                    <TextBlock Text=" "
+                               FontSize="12"
+                               Foreground="{StaticResource SecondaryTextBrush}"/>
+                    <TextBlock Text="{Binding LastIndexed, StringFormat='MMM d, yyyy h:mm tt', TargetNullValue={StaticResource Common_Never}}"
+                               FontSize="12"
+                               Foreground="{StaticResource SecondaryTextBrush}"/>
+                </StackPanel>
+                <StackPanel HorizontalAlignment="Center" Orientation="Horizontal" Margin="0,4,0,0">
+                    <TextBlock Text="{DynamicResource Common_TotalFiles}"
+                               FontSize="12"
+                               Foreground="{StaticResource SecondaryTextBrush}"/>
+                    <TextBlock Text=" "
+                               FontSize="12"
+                               Foreground="{StaticResource SecondaryTextBrush}"/>
+                    <TextBlock Text="{Binding TotalFilesIndexed, StringFormat='{}{0:N0}'}"
+                               FontSize="12"
+                               Foreground="{StaticResource SecondaryTextBrush}"/>
+                </StackPanel>
             </StackPanel>
 
             <!-- Performance Metrics Section -->
-            <TextBlock Text="PERFORMANCE METRICS" 
+            <TextBlock Text="{DynamicResource Perf_Title}" 
                        FontSize="11" 
                        FontWeight="SemiBold"
                        Foreground="{StaticResource SecondaryTextBrush}"
@@ -372,13 +383,13 @@
 
                     <!-- Total Searches -->
                     <StackPanel Grid.Column="0" Grid.Row="0" Margin="0,0,0,16">
-                        <TextBlock Text="Total Searches" FontSize="12" Foreground="{StaticResource SecondaryTextBrush}"/>
+                        <TextBlock Text="{DynamicResource Perf_TotalSearches}" FontSize="12" Foreground="{StaticResource SecondaryTextBrush}"/>
                         <TextBlock Text="{Binding TotalSearches}" FontSize="20" FontWeight="SemiBold" Foreground="{StaticResource PrimaryTextBrush}"/>
                     </StackPanel>
 
                     <!-- Avg Search Time -->
                     <StackPanel Grid.Column="1" Grid.Row="0" Margin="0,0,0,16">
-                        <TextBlock Text="Avg Search Time" FontSize="12" Foreground="{StaticResource SecondaryTextBrush}"/>
+                        <TextBlock Text="{DynamicResource Perf_AvgSearchTime}" FontSize="12" Foreground="{StaticResource SecondaryTextBrush}"/>
                         <TextBlock FontSize="20" FontWeight="SemiBold" Foreground="{StaticResource PrimaryTextBrush}">
                             <Run Text="{Binding AverageSearchTimeMs}"/><Run Text=" ms"/>
                         </TextBlock>
@@ -386,7 +397,7 @@
 
                     <!-- Memory Usage -->
                     <StackPanel Grid.Column="0" Grid.Row="1">
-                        <TextBlock Text="Memory Usage" FontSize="12" Foreground="{StaticResource SecondaryTextBrush}"/>
+                        <TextBlock Text="{DynamicResource Perf_MemoryUsage}" FontSize="12" Foreground="{StaticResource SecondaryTextBrush}"/>
                         <TextBlock FontSize="20" FontWeight="SemiBold" Foreground="{StaticResource PrimaryTextBrush}">
                             <Run Text="{Binding MemoryUsageMB}"/><Run Text=" MB"/>
                         </TextBlock>
@@ -394,24 +405,24 @@
 
                     <!-- Uptime -->
                     <StackPanel Grid.Column="1" Grid.Row="1">
-                        <TextBlock Text="Uptime" FontSize="12" Foreground="{StaticResource SecondaryTextBrush}"/>
+                        <TextBlock Text="{DynamicResource Perf_Uptime}" FontSize="12" Foreground="{StaticResource SecondaryTextBrush}"/>
                         <TextBlock Text="{Binding Uptime}" FontSize="20" FontWeight="SemiBold" Foreground="{StaticResource PrimaryTextBrush}"/>
                     </StackPanel>
                 </Grid>
             </Border>
 
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,0,0,12">
-                <Button Content="Refresh Metrics" 
+                <Button Content="{DynamicResource Perf_Refresh}" 
                         Style="{StaticResource SecondaryButtonStyle}"
                         Command="{Binding RefreshMetricsCommand}"
                         Margin="0,0,12,0"/>
-                <Button Content="Open Log Folder" 
+                <Button Content="{DynamicResource Perf_OpenLogs}" 
                         Style="{StaticResource SecondaryButtonStyle}"
                         Command="{Binding OpenLogFolderCommand}"/>
             </StackPanel>
 
             <!-- About & Updates Section -->
-            <TextBlock Text="ABOUT &amp; UPDATES" 
+            <TextBlock Text="{DynamicResource About_Title}" 
                        FontSize="11" 
                        FontWeight="SemiBold"
                        Foreground="{StaticResource SecondaryTextBrush}"
@@ -430,15 +441,20 @@
                                        FontSize="16" 
                                        FontWeight="SemiBold"
                                        Foreground="{StaticResource PrimaryTextBrush}"/>
-                            <TextBlock FontSize="12"
-                                       Foreground="{StaticResource SecondaryTextBrush}"
-                                       Margin="0,4,0,0">
-                                <Run Text="Current Version: "/>
-                                <Run Text="{Binding CurrentVersion}"/>
-                            </TextBlock>
+                            <StackPanel Orientation="Horizontal" Margin="0,4,0,0">
+                                <TextBlock Text="{DynamicResource About_CurrentVersion}"
+                                           FontSize="12"
+                                           Foreground="{StaticResource SecondaryTextBrush}"/>
+                                <TextBlock Text=" "
+                                           FontSize="12"
+                                           Foreground="{StaticResource SecondaryTextBrush}"/>
+                                <TextBlock Text="{Binding CurrentVersion}"
+                                           FontSize="12"
+                                           Foreground="{StaticResource SecondaryTextBrush}"/>
+                            </StackPanel>
                         </StackPanel>
                         <Button Grid.Column="1"
-                                Content="Check for Updates"
+                                Content="{DynamicResource About_CheckUpdates}"
                                 Style="{StaticResource SecondaryButtonStyle}"
                                 Command="{Binding CheckForUpdatesCommand}"/>
                     </Grid>
@@ -456,11 +472,11 @@
                             </Grid.RowDefinitions>
 
                             <!-- Update Info -->
-                            <StackPanel Grid.Row="0" Margin="0,0,0,12">
-                                <TextBlock FontSize="14" FontWeight="SemiBold" Foreground="#4CAF50">
-                                    <Run Text="🎉 New Version Available: "/>
-                                    <Run Text="{Binding LatestVersion}"/>
-                                </TextBlock>
+                            <StackPanel Grid.Row="0" Margin="0,0,0,12" Orientation="Horizontal">
+                                <TextBlock Text="🎉 " FontSize="14" FontWeight="SemiBold" Foreground="#4CAF50"/>
+                                <TextBlock Text="{DynamicResource About_NewVersion}" FontSize="14" FontWeight="SemiBold" Foreground="#4CAF50"/>
+                                <TextBlock Text=" " FontSize="14" FontWeight="SemiBold" Foreground="#4CAF50"/>
+                                <TextBlock Text="{Binding LatestVersion}" FontSize="14" FontWeight="SemiBold" Foreground="#4CAF50"/>
                             </StackPanel>
 
                             <!-- Release Notes Preview -->
@@ -475,7 +491,7 @@
                             <!-- Download Progress (shown when downloading) -->
                             <StackPanel Grid.Row="2" 
                                         Visibility="{Binding IsDownloadingUpdate, Converter={StaticResource BoolToVisibilityConverter}}">
-                                <TextBlock Text="Downloading update..." 
+                                <TextBlock Text="{DynamicResource About_Downloading}" 
                                            FontSize="12" 
                                            Foreground="{StaticResource SecondaryTextBrush}"
                                            Margin="0,0,0,8"/>
@@ -500,11 +516,11 @@
                                         </Style.Triggers>
                                     </Style>
                                 </StackPanel.Style>
-                                <Button Content="View on GitHub"
+                                <Button Content="{DynamicResource About_ViewGitHub}"
                                         Style="{StaticResource SecondaryButtonStyle}"
                                         Command="{Binding OpenReleasePageCommand}"
                                         Margin="0,0,12,0"/>
-                                <Button Content="Download &amp; Install"
+                                <Button Content="{DynamicResource About_DownloadInstall}"
                                         Style="{StaticResource PrimaryButtonStyle}"
                                         Command="{Binding DownloadAndInstallUpdateCommand}"/>
                             </StackPanel>

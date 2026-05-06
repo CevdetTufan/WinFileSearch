@@ -10,6 +10,7 @@ namespace WinFileSearch.UI.Services;
 public interface ILocalizationService
 {
     string CurrentLanguage { get; }
+    CultureInfo CurrentCulture { get; }
     IReadOnlyList<string> AvailableLanguages { get; }
     void SetLanguage(string languageCode);
     string GetString(string key);
@@ -18,6 +19,9 @@ public interface ILocalizationService
 
 public class LocalizationService : ILocalizationService
 {
+    private static LocalizationService? _instance;
+    public static LocalizationService? Instance => _instance;
+
     private readonly Dictionary<string, string> _languageNames = new()
     {
         { "en", "English" },
@@ -25,15 +29,18 @@ public class LocalizationService : ILocalizationService
     };
 
     public string CurrentLanguage { get; private set; } = "en";
+    public CultureInfo CurrentCulture { get; private set; } = new CultureInfo("en-US");
     public IReadOnlyList<string> AvailableLanguages => _languageNames.Keys.ToList().AsReadOnly();
 
     public event EventHandler? LanguageChanged;
 
     public LocalizationService(ISettingsService settingsService)
     {
-        // Load saved language or detect from system
-        var savedLanguage = settingsService.Settings.Theme; // Reusing Theme field temporarily
-        if (string.IsNullOrEmpty(savedLanguage) || savedLanguage == "Dark")
+        _instance = this;
+
+        // Load saved language from settings
+        var savedLanguage = settingsService.Settings.Language;
+        if (string.IsNullOrEmpty(savedLanguage))
         {
             // Detect from system
             var culture = CultureInfo.CurrentUICulture;
@@ -45,6 +52,7 @@ public class LocalizationService : ILocalizationService
         }
 
         LoadLanguageResources(CurrentLanguage);
+        SetCulture(CurrentLanguage);
     }
 
     public void SetLanguage(string languageCode)
@@ -57,8 +65,22 @@ public class LocalizationService : ILocalizationService
 
         CurrentLanguage = languageCode;
         LoadLanguageResources(languageCode);
-        
+        SetCulture(languageCode);
+
         LanguageChanged?.Invoke(this, EventArgs.Empty);
+    }
+
+    private void SetCulture(string languageCode)
+    {
+        CurrentCulture = languageCode switch
+        {
+            "tr" => new CultureInfo("tr-TR"),
+            _ => new CultureInfo("en-US")
+        };
+        CultureInfo.CurrentCulture = CurrentCulture;
+        CultureInfo.CurrentUICulture = CurrentCulture;
+        Thread.CurrentThread.CurrentCulture = CurrentCulture;
+        Thread.CurrentThread.CurrentUICulture = CurrentCulture;
     }
 
     public string GetString(string key)
@@ -83,11 +105,12 @@ public class LocalizationService : ILocalizationService
     {
         try
         {
-            var resourcePath = $"Resources/Strings.{languageCode}.xaml";
-            var uri = new Uri(resourcePath, UriKind.Relative);
+            // Use pack URI for proper resource loading
+            var resourcePath = $"pack://application:,,,/WinFileSearch.UI;component/Resources/Strings.{languageCode}.xaml";
+            var uri = new Uri(resourcePath, UriKind.Absolute);
             var resourceDict = new ResourceDictionary { Source = uri };
 
-            // Remove old language dictionaries
+            // Remove ALL existing language dictionaries (both en and tr)
             var toRemove = Application.Current.Resources.MergedDictionaries
                 .Where(d => d.Source?.OriginalString.Contains("Strings.") == true)
                 .ToList();
@@ -100,9 +123,10 @@ public class LocalizationService : ILocalizationService
             // Add new language dictionary
             Application.Current.Resources.MergedDictionaries.Add(resourceDict);
         }
-        catch
+        catch (Exception ex)
         {
-            // If loading fails, continue with existing resources
+            // If loading fails, log and continue with existing resources
+            System.Diagnostics.Debug.WriteLine($"Failed to load language resources: {ex.Message}");
         }
     }
 }

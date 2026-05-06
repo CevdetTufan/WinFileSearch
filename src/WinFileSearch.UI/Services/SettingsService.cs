@@ -33,6 +33,9 @@ public class AppSettings
     /// <summary>Gets or sets the application theme name.</summary>
     public string Theme { get; set; } = "Dark";
 
+    /// <summary>Gets or sets the application language code (e.g., "en", "tr").</summary>
+    public string Language { get; set; } = "en";
+
     /// <summary>Gets or sets the timestamp of the last settings update.</summary>
     public DateTime LastUpdated { get; set; } = DateTime.Now;
 }

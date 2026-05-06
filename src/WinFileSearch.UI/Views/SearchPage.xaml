@@ -38,7 +38,7 @@
             </Grid.ColumnDefinitions>
             
             <TextBlock Grid.Column="0" 
-                       Text="Search Results" 
+                       Text="{DynamicResource Search_Title}" 
                        FontSize="22" 
                        FontWeight="SemiBold"
                        Foreground="{StaticResource PrimaryTextBrush}"/>
@@ -82,11 +82,11 @@
 
                             <!-- Header -->
                             <Grid Grid.Row="0" Margin="12,8">
-                                <TextBlock Text="Recent Searches"
+                                <TextBlock Text="{DynamicResource Search_History}"
                                            FontSize="11"
                                            FontWeight="SemiBold"
                                            Foreground="{StaticResource SecondaryTextBrush}"/>
-                                <Button Content="Clear"
+                                <Button Content="{DynamicResource Search_ClearHistory}"
                                         HorizontalAlignment="Right"
                                         Background="Transparent"
                                         Foreground="{StaticResource AccentBrush}"
@@ -130,25 +130,25 @@
 
             <!-- Category Filters -->
             <StackPanel Orientation="Horizontal" Margin="0,12,0,8">
-                <ToggleButton Content="📄 All Files" 
+                <ToggleButton Content="{DynamicResource Search_All}" 
                               Style="{StaticResource FilterButtonStyle}"
                               IsChecked="{Binding IsAllSelected, Mode=OneWay}"
                               Command="{Binding SetCategoryAllCommand}"
                               Margin="0,0,8,0"/>
 
-                <ToggleButton Content="📝 Documents" 
+                <ToggleButton Content="{DynamicResource Search_Documents}" 
                               Style="{StaticResource FilterButtonStyle}"
                               IsChecked="{Binding IsDocumentsSelected, Mode=OneWay}"
                               Command="{Binding SetCategoryDocumentsCommand}"
                               Margin="0,0,8,0"/>
 
-                <ToggleButton Content="🖼️ Images"
+                <ToggleButton Content="{DynamicResource Search_Images}"
                               Style="{StaticResource FilterButtonStyle}"
                               IsChecked="{Binding IsImagesSelected, Mode=OneWay}"
                               Command="{Binding SetCategoryImagesCommand}"
                               Margin="0,0,8,0"/>
 
-                <ToggleButton Content="🎬 Media" 
+                <ToggleButton Content="{DynamicResource Search_Media}" 
                               Style="{StaticResource FilterButtonStyle}"
                               IsChecked="{Binding IsMediaSelected, Mode=OneWay}"
                               Command="{Binding SetCategoryMediaCommand}"/>
@@ -174,13 +174,13 @@
                           Stretch="Uniform"
                           Opacity="0.5"
                           HorizontalAlignment="Center"/>
-                    <TextBlock Text="No files found"
+                    <TextBlock Text="{DynamicResource Search_NoResults}"
                                FontSize="18"
                                FontWeight="Medium"
                                Foreground="{StaticResource SecondaryTextBrush}"
                                HorizontalAlignment="Center"
                                Margin="0,16,0,8"/>
-                    <TextBlock Text="Try adjusting your search terms or filters"
+                    <TextBlock Text="{DynamicResource Search_TryAdjusting}"
                                FontSize="13"
                                Foreground="{StaticResource SecondaryTextBrush}"
                                HorizontalAlignment="Center"
@@ -200,17 +200,17 @@
                 <ListBox.ContextMenu>
                     <ContextMenu Background="{StaticResource CardBackgroundBrush}"
                                  BorderBrush="{StaticResource BorderBrush}">
-                        <MenuItem Header="Open File" 
+                        <MenuItem Header="{DynamicResource Context_Open}" 
                                   Command="{Binding OpenSelectedFileCommand}"
                                   Foreground="{StaticResource PrimaryTextBrush}"/>
-                        <MenuItem Header="Open File Location" 
+                        <MenuItem Header="{DynamicResource Context_OpenLocation}" 
                                   Command="{Binding OpenFileLocationCommand}"
                                   Foreground="{StaticResource PrimaryTextBrush}"/>
                         <Separator Background="{StaticResource BorderBrush}"/>
-                        <MenuItem Header="Copy Full Path" 
+                        <MenuItem Header="{DynamicResource Context_CopyPath}" 
                                   Command="{Binding CopyPathCommand}"
                                   Foreground="{StaticResource PrimaryTextBrush}"/>
-                        <MenuItem Header="Copy File Name" 
+                        <MenuItem Header="{DynamicResource Context_CopyName}" 
                                   Command="{Binding CopyFileNameCommand}"
                                   Foreground="{StaticResource PrimaryTextBrush}"/>
                     </ContextMenu>
@@ -313,7 +313,7 @@
 
                     <!-- Preview Header -->
                     <Grid Grid.Row="0" Margin="0,0,0,16">
-                        <TextBlock Text="QUICK PREVIEW" 
+                        <TextBlock Text="{DynamicResource Preview_Title}" 
                                    FontSize="11" 
                                    FontWeight="SemiBold"
                                    Foreground="{StaticResource SecondaryTextBrush}"/>
@@ -414,7 +414,7 @@
                                     </Style>
                                 </Border.Style>
                                 <StackPanel>
-                                    <TextBlock Text="PREVIEW" FontSize="10" Foreground="{StaticResource SecondaryTextBrush}" Margin="0,0,0,6"/>
+                                    <TextBlock Text="{DynamicResource Preview_Preview}" FontSize="10" Foreground="{StaticResource SecondaryTextBrush}" Margin="0,0,0,6"/>
                                     <TextBlock Text="{Binding SelectedFile.FullPath, Converter={StaticResource TextPreviewConverter}}"
                                                FontSize="11"
                                                FontFamily="Consolas"
@@ -425,27 +425,27 @@
                             </Border>
 
                             <!-- File Info -->
-                            <TextBlock Text="TYPE" FontSize="10" Foreground="{StaticResource SecondaryTextBrush}" Margin="0,0,0,2"/>
+                            <TextBlock Text="{DynamicResource Preview_Type}" FontSize="10" Foreground="{StaticResource SecondaryTextBrush}" Margin="0,0,0,2"/>
                             <TextBlock Text="{Binding SelectedFile.Extension}" FontSize="13" Foreground="{StaticResource PrimaryTextBrush}" Margin="0,0,0,12"/>
 
-                            <TextBlock Text="SIZE" FontSize="10" Foreground="{StaticResource SecondaryTextBrush}" Margin="0,0,0,2"/>
+                            <TextBlock Text="{DynamicResource Preview_Size}" FontSize="10" Foreground="{StaticResource SecondaryTextBrush}" Margin="0,0,0,2"/>
                             <TextBlock Text="{Binding SelectedFile.Size, Converter={StaticResource FileSizeConverter}}" FontSize="13" Foreground="{StaticResource PrimaryTextBrush}" Margin="0,0,0,12"/>
 
-                            <TextBlock Text="MODIFIED" FontSize="10" Foreground="{StaticResource SecondaryTextBrush}" Margin="0,0,0,2"/>
+                            <TextBlock Text="{DynamicResource Preview_Modified}" FontSize="10" Foreground="{StaticResource SecondaryTextBrush}" Margin="0,0,0,2"/>
                             <TextBlock Text="{Binding SelectedFile.ModifiedAt, Converter={StaticResource RelativeTimeConverter}}" FontSize="13" Foreground="{StaticResource PrimaryTextBrush}" Margin="0,0,0,12"/>
 
-                            <TextBlock Text="LOCATION" FontSize="10" Foreground="{StaticResource SecondaryTextBrush}" Margin="0,0,0,2"/>
+                            <TextBlock Text="{DynamicResource Preview_Location}" FontSize="10" Foreground="{StaticResource SecondaryTextBrush}" Margin="0,0,0,2"/>
                             <TextBlock Text="{Binding SelectedFile.Directory}" FontSize="12" Foreground="{StaticResource PrimaryTextBrush}" TextWrapping="Wrap"/>
                         </StackPanel>
                     </ScrollViewer>
 
                     <!-- Actions -->
                     <StackPanel Grid.Row="3" Margin="0,16,0,0">
-                        <Button Content="Open File" 
+                        <Button Content="{DynamicResource Preview_OpenFile}" 
                                 Style="{StaticResource PrimaryButtonStyle}"
                                 Command="{Binding OpenSelectedFileCommand}"
                                 Margin="0,0,0,8"/>
-                        <Button Content="Open Location" 
+                        <Button Content="{DynamicResource Preview_OpenLocation}" 
                                 Style="{StaticResource SecondaryButtonStyle}"
                                 Command="{Binding OpenFileLocationCommand}"/>
                     </StackPanel>

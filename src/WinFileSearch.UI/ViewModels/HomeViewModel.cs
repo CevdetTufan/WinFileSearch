@@ -7,11 +7,13 @@ using WinFileSearch.UI.Services;
 
 namespace WinFileSearch.UI.ViewModels;
 
-public partial class HomeViewModel : ObservableObject
+public partial class HomeViewModel : ObservableObject, IDisposable
 {
     private readonly IFileSearchService _searchService;
     private readonly IFileIndexService _indexService;
     private readonly INavigationService _navigationService;
+    private readonly ILocalizationService _localizationService;
+    private bool _disposed;
 
     [ObservableProperty]
     private string _searchQuery = string.Empty;
@@ -33,11 +35,26 @@ public partial class HomeViewModel : ObservableObject
 
     public ObservableCollection<FileEntry> RecentFiles { get; } = [];
 
-    public HomeViewModel(IFileSearchService searchService, IFileIndexService indexService, INavigationService navigationService)
+    public HomeViewModel(
+        IFileSearchService searchService, 
+        IFileIndexService indexService, 
+        INavigationService navigationService,
+        ILocalizationService localizationService)
     {
         _searchService = searchService;
         _indexService = indexService;
         _navigationService = navigationService;
+        _localizationService = localizationService;
+
+        // Subscribe to language changes to refresh converter bindings
+        _localizationService.LanguageChanged += OnLanguageChanged;
+
+        _ = LoadRecentFilesAsync();
+    }
+
+    private void OnLanguageChanged(object? sender, EventArgs e)
+    {
+        // Refresh the list to update converter bindings (relative time, etc.)
         _ = LoadRecentFilesAsync();
     }
 
@@ -123,6 +140,24 @@ public partial class HomeViewModel : ObservableObject
         else
         {
             IndexingStatus = $"Indexing {progress.PercentComplete:F0}% complete...";
+        }
+    }
+
+    public void Dispose()
+    {
+        Dispose(true);
+        GC.SuppressFinalize(this);
+    }
+
+    protected virtual void Dispose(bool disposing)
+    {
+        if (!_disposed)
+        {
+            if (disposing)
+            {
+                _localizationService.LanguageChanged -= OnLanguageChanged;
+            }
+            _disposed = true;
         }
     }
 }
