@@ -19,6 +19,10 @@
     <system:String x:Key="Home_StartSearch">Start Search</system:String>
     <system:String x:Key="Home_FilesIndexed">files indexed</system:String>
     <system:String x:Key="Home_FoldersMonitored">folders monitored</system:String>
+    <system:String x:Key="Home_RecentlyIndexed">RECENTLY INDEXED</system:String>
+    <system:String x:Key="Home_ViewAll">View All</system:String>
+    <system:String x:Key="Home_NoFilesIndexed">No files indexed yet</system:String>
+    <system:String x:Key="Home_GoToSettings">Go to Settings to add folders for indexing</system:String>
 
     <!-- Search Page -->
     <system:String x:Key="Search_Title">Search Files</system:String>
@@ -32,6 +36,7 @@
     <system:String x:Key="Search_Searching">Searching...</system:String>
     <system:String x:Key="Search_History">Recent Searches</system:String>
     <system:String x:Key="Search_ClearHistory">Clear History</system:String>
+    <system:String x:Key="Search_TryAdjusting">Try adjusting your search terms or filters</system:String>
 
     <!-- Preview Panel -->
     <system:String x:Key="Preview_Title">QUICK PREVIEW</system:String>
@@ -41,6 +46,7 @@
     <system:String x:Key="Preview_Location">LOCATION</system:String>
     <system:String x:Key="Preview_OpenFile">Open File</system:String>
     <system:String x:Key="Preview_OpenLocation">Open Location</system:String>
+    <system:String x:Key="Preview_Preview">PREVIEW</system:String>
 
     <!-- Context Menu -->
     <system:String x:Key="Context_Open">Open</system:String>
@@ -67,6 +73,8 @@
     <system:String x:Key="Settings_AddExclusion">Add Exclusion</system:String>
     <system:String x:Key="Settings_DragDropHint">Drag and drop folders here</system:String>
     <system:String x:Key="Settings_DragDropSubHint">or use the 'Add Folder' button above</system:String>
+    <system:String x:Key="Settings_Language">Language</system:String>
+    <system:String x:Key="Settings_LanguageDesc">Select your preferred language</system:String>
 
     <!-- Performance -->
     <system:String x:Key="Perf_Title">PERFORMANCE METRICS</system:String>
@@ -81,8 +89,25 @@
     <system:String x:Key="Common_LastIndexed">Last indexed:</system:String>
     <system:String x:Key="Common_TotalFiles">Total files indexed:</system:String>
     <system:String x:Key="Common_Files">files</system:String>
+    <system:String x:Key="Common_File">File</system:String>
     <system:String x:Key="Common_Never">Never</system:String>
     <system:String x:Key="Common_ExcludedFromIndexing">Excluded from indexing</system:String>
+
+    <!-- Relative Time -->
+    <system:String x:Key="Time_JustNow">Just now</system:String>
+    <system:String x:Key="Time_MinutesAgo">{0}m ago</system:String>
+    <system:String x:Key="Time_HoursAgo">{0}h ago</system:String>
+    <system:String x:Key="Time_DaysAgo">{0}d ago</system:String>
+    <system:String x:Key="Time_WeeksAgo">{0}w ago</system:String>
+
+    <!-- About & Updates -->
+    <system:String x:Key="About_Title">ABOUT &amp; UPDATES</system:String>
+    <system:String x:Key="About_CurrentVersion">Current Version:</system:String>
+    <system:String x:Key="About_CheckUpdates">Check for Updates</system:String>
+    <system:String x:Key="About_NewVersion">New Version Available:</system:String>
+    <system:String x:Key="About_Downloading">Downloading update...</system:String>
+    <system:String x:Key="About_ViewGitHub">View on GitHub</system:String>
+    <system:String x:Key="About_DownloadInstall">Download &amp; Install</system:String>
 
     <!-- System Tray -->
     <system:String x:Key="Tray_Show">Show Window</system:String>

@@ -16,6 +16,7 @@ public partial class SearchViewModel : ObservableObject, IDisposable
     private readonly ISearchHistoryService _historyService;
     private readonly IFavoritesService _favoritesService;
     private readonly ILoggingService _loggingService;
+    private readonly ILocalizationService _localizationService;
     private readonly Timer _debounceTimer;
     private const int DebounceDelayMs = 300;
     private bool _disposed;
@@ -63,12 +64,18 @@ public partial class SearchViewModel : ObservableObject, IDisposable
     public ObservableCollection<FileEntry> SearchResults { get; } = [];
     public ObservableCollection<string> SearchHistory { get; } = [];
 
-    public SearchViewModel(IFileSearchService searchService, ISearchHistoryService historyService, IFavoritesService favoritesService, ILoggingService loggingService)
+    public SearchViewModel(
+        IFileSearchService searchService, 
+        ISearchHistoryService historyService, 
+        IFavoritesService favoritesService, 
+        ILoggingService loggingService,
+        ILocalizationService localizationService)
     {
         _searchService = searchService;
         _historyService = historyService;
         _favoritesService = favoritesService;
         _loggingService = loggingService;
+        _localizationService = localizationService;
 
         // Initialize debounce timer
         _debounceTimer = new Timer(DebounceDelayMs)
@@ -81,8 +88,24 @@ public partial class SearchViewModel : ObservableObject, IDisposable
         LoadHistory();
         _historyService.HistoryChanged += OnHistoryChanged;
         _favoritesService.FavoritesChanged += OnFavoritesChanged;
+        _localizationService.LanguageChanged += OnLanguageChanged;
 
         _loggingService.LogDebug("SearchViewModel initialized");
+    }
+
+    private void OnLanguageChanged(object? sender, EventArgs e)
+    {
+        // Refresh the results to update converter bindings (relative time, etc.)
+        System.Windows.Application.Current?.Dispatcher.Invoke(() =>
+        {
+            // Force refresh by re-adding items
+            var items = SearchResults.ToList();
+            SearchResults.Clear();
+            foreach (var item in items)
+            {
+                SearchResults.Add(item);
+            }
+        });
     }
 
     private void OnHistoryChanged(object? sender, EventArgs e)
@@ -367,6 +390,7 @@ public partial class SearchViewModel : ObservableObject, IDisposable
             _debounceTimer.Dispose();
             _historyService.HistoryChanged -= OnHistoryChanged;
             _favoritesService.FavoritesChanged -= OnFavoritesChanged;
+            _localizationService.LanguageChanged -= OnLanguageChanged;
         }
 
         _disposed = true;

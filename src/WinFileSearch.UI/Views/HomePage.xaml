@@ -47,24 +47,30 @@
                           VerticalAlignment="Center"/>
                 </Border>
                 <StackPanel Margin="12,0,0,0" VerticalAlignment="Center">
-                    <TextBlock Text="Index Manager" 
+                    <TextBlock Text="{DynamicResource Home_Title}" 
                                FontSize="18" 
                                FontWeight="SemiBold"
                                Foreground="{StaticResource PrimaryTextBrush}"/>
-                    <TextBlock Text="Windows File Search" 
+                    <TextBlock Text="{DynamicResource Home_Subtitle}" 
                                FontSize="11"
                                Foreground="{StaticResource SecondaryTextBrush}"/>
                 </StackPanel>
             </StackPanel>
 
             <!-- Stats -->
-            <TextBlock Grid.Column="2" 
+            <StackPanel Grid.Column="2" 
                        VerticalAlignment="Center"
-                       FontSize="12"
-                       Foreground="{StaticResource SecondaryTextBrush}">
-                <Run Text="{Binding TotalFilesIndexed, StringFormat='{}{0:N0}'}"/>
-                <Run Text=" files indexed"/>
-            </TextBlock>
+                       Orientation="Horizontal">
+                <TextBlock Text="{Binding TotalFilesIndexed, StringFormat='{}{0:N0}'}"
+                           FontSize="12"
+                           Foreground="{StaticResource SecondaryTextBrush}"/>
+                <TextBlock Text=" "
+                           FontSize="12"
+                           Foreground="{StaticResource SecondaryTextBrush}"/>
+                <TextBlock Text="{DynamicResource Home_FilesIndexed}"
+                           FontSize="12"
+                           Foreground="{StaticResource SecondaryTextBrush}"/>
+            </StackPanel>
         </Grid>
 
         <!-- Search Box -->
@@ -75,7 +81,7 @@
                     <KeyBinding Key="Return" Command="{x:Null}"/>
                 </TextBox.InputBindings>
             </TextBox>
-            <TextBlock Text="🔍 Search files, folders, metadata..."
+            <TextBlock Text="{DynamicResource Home_SearchPlaceholder}"
                        IsHitTestVisible="False"
                        Foreground="{StaticResource SecondaryTextBrush}"
                        VerticalAlignment="Center"
@@ -85,23 +91,23 @@
 
         <!-- Category Filters -->
         <StackPanel Grid.Row="2" Orientation="Horizontal" Margin="20,16,20,0">
-            <ToggleButton Content="📄 All Files" 
+            <ToggleButton Content="{DynamicResource Search_All}" 
                           Style="{StaticResource FilterButtonStyle}"
                           IsChecked="True"
                           Command="{Binding SetCategoryAllCommand}"
                           Margin="0,0,8,0"/>
-            
-            <ToggleButton Content="📝 Documents" 
+
+            <ToggleButton Content="{DynamicResource Search_Documents}" 
                           Style="{StaticResource FilterButtonStyle}"
                           Command="{Binding SetCategoryDocumentsCommand}"
                           Margin="0,0,8,0"/>
-            
-            <ToggleButton Content="🖼️ Images" 
+
+            <ToggleButton Content="{DynamicResource Search_Images}" 
                           Style="{StaticResource FilterButtonStyle}"
                           Command="{Binding SetCategoryImagesCommand}"
                           Margin="0,0,8,0"/>
-            
-            <ToggleButton Content="🎬 Media" 
+
+            <ToggleButton Content="{DynamicResource Search_Media}" 
                           Style="{StaticResource FilterButtonStyle}"
                           Command="{Binding SetCategoryMediaCommand}"/>
         </StackPanel>
@@ -115,11 +121,11 @@
 
             <!-- Section Header -->
             <Grid Grid.Row="0" Margin="0,0,0,12">
-                <TextBlock Text="RECENTLY INDEXED" 
+                <TextBlock Text="{DynamicResource Home_RecentlyIndexed}" 
                            FontSize="11" 
                            FontWeight="SemiBold"
                            Foreground="{StaticResource SecondaryTextBrush}"/>
-                <TextBlock Text="View All" 
+                <TextBlock Text="{DynamicResource Home_ViewAll}" 
                            HorizontalAlignment="Right"
                            FontSize="12"
                            Foreground="{StaticResource AccentBrush}"
@@ -181,9 +187,12 @@
                                 <TextBlock Text=" • "
                                            FontSize="12"
                                            Foreground="{StaticResource SecondaryTextBrush}"/>
-                                <TextBlock Text="{Binding Extension, StringFormat='{}{0} File'}"
-                                           FontSize="12"
-                                           Foreground="{StaticResource SecondaryTextBrush}"/>
+                                <TextBlock FontSize="12"
+                                           Foreground="{StaticResource SecondaryTextBrush}">
+                                    <Run Text="{Binding Extension}"/>
+                                    <Run Text=" "/>
+                                    <Run Text="{DynamicResource Common_File}"/>
+                                </TextBlock>
                             </StackPanel>
 
                             <!-- Time -->
@@ -202,11 +211,11 @@
                         VerticalAlignment="Center"
                         HorizontalAlignment="Center"
                         Visibility="{Binding RecentFiles.Count, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter=Invert}">
-                <TextBlock Text="No files indexed yet"
+                <TextBlock Text="{DynamicResource Home_NoFilesIndexed}"
                            FontSize="16"
                            Foreground="{StaticResource SecondaryTextBrush}"
                            HorizontalAlignment="Center"/>
-                <TextBlock Text="Go to Settings to add folders for indexing"
+                <TextBlock Text="{DynamicResource Home_GoToSettings}"
                            FontSize="13"
                            Foreground="{StaticResource SecondaryTextBrush}"
                            HorizontalAlignment="Center"
