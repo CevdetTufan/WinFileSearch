@@ -1,6 +1,6 @@
 ; WinFileSearch Installer Script
 #define MyAppName "WinFileSearch"
-#define MyAppVersion "1.5.0"
+#define MyAppVersion "1.6.0"
 #define MyAppPublisher "wordivio.com"
 #define MyAppURL "https://github.com/CevdetTufan/WinFileSearch"
 #define MyAppExeName "WinFileSearch.UI.exe"
@@ -35,7 +35,7 @@ Name: "desktopicon"; Description: "Create desktop shortcut"
 Name: "startupicon"; Description: "Start with Windows"; Flags: unchecked
 
 [Files]
-Source: "..\publish\win-x64\*"; DestDir: "{app}"; Flags: recursesubdirs
+Source: "..\publish\win-x64\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs
 
 [Icons]
 Name: "{group}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"
