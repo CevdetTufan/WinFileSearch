@@ -14,6 +14,7 @@
   <img src="https://img.shields.io/badge/UI-WPF-68217A?style=flat-square" alt="WPF"/>
   <img src="https://img.shields.io/badge/Database-SQLite%20FTS5-003B57?style=flat-square&logo=sqlite" alt="SQLite FTS5"/>
   <img src="https://img.shields.io/badge/Localization-TR%20%7C%20EN-107C10?style=flat-square" alt="Localization"/>
+  <img src="https://img.shields.io/badge/AI-Copilot%20%2B%20Antigravity-8A2BE2?style=flat-square" alt="Developed with Copilot & Antigravity"/>
   <img src="https://img.shields.io/badge/License-MIT-green?style=flat-square" alt="MIT License"/>
 </p>
 
@@ -197,5 +198,6 @@ Bu proje **MIT Lisansı** altında lisanslanmıştır. Daha fazla bilgi için [L
 ---
 
 <p align="center">
+  🤖 <b>Bu proje GitHub Copilot ve Antigravity AI yardımıyla geliştirilmiştir.</b><br/><br/>
   ⭐ Projeyi faydalı bulduysanız yukarıdan yıldız vermeyi unutmayın!
 </p>
