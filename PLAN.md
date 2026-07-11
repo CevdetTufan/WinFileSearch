@@ -140,7 +140,7 @@ WinFileSearch/
 
 ## 📝 Notlar
 
-- 🤖 Bu proje GitHub Copilot yardımıyla geliştirilmiştir
+- 🤖 Bu proje **GitHub Copilot** ve **Antigravity AI** yardımıyla geliştirilmiştir
 - Geri bildirimler için: [Issues](https://github.com/CevdetTufan/WinFileSearch/issues)
 
 ---
