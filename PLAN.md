@@ -82,9 +82,19 @@ Windows için en hızlı ve kullanıcı dostu dosya arama uygulaması olmak.
 ---
 
 ## 📁 Dosya Yapısı (Mevcut)
-WinFileSearch/ ├── src/ │   ├── WinFileSearch.Data/          ✅ Tamamlandı │   ├── WinFileSearch.Core/          ✅ Tamamlandı │   └── WinFileSearch.UI/            ✅ Tamamlandı ├── docs/                            ⏳ Oluşturulacak │   └── screenshots/ ├── README.md                        ⏳ Oluşturulacak ├── LICENSE                          ⏳ Oluşturulacak └── PLAN.md                          ✅ Bu dosya
 
-
+```text
+WinFileSearch/
+├── src/
+│   ├── WinFileSearch.Data/          ✅ Tamamlandı (SQLite FTS5, DbContext, Repository)
+│   ├── WinFileSearch.Core/          ✅ Tamamlandı (Index, Search, Watcher, Update Servisleri)
+│   └── WinFileSearch.UI/            #  Tamamlandı (WPF MVVM, Diller, Tray, Hotkey)
+├── installer/                       ✅ Tamamlandı (Inno Setup Kurulum Dosyaları)
+├── docs/                            ✅ Tamamlandı (Ekran Görüntüleri ve Varlıklar)
+├── README.md                        ✅ Tamamlandı
+├── LICENSE.txt                      ✅ Tamamlandı
+└── PLAN.md                          ✅ Bu dosya
+```
 ---
 
 ## 🔧 Teknik Borç
@@ -124,7 +134,7 @@ WinFileSearch/ ├── src/ │   ├── WinFileSearch.Data/          ✅ T
 | v1.0.0 | Mart 2026 | İlk sürüm - Temel özellikler |
 | v1.1.0 | TBD | Kritik iyileştirmeler |
 | v1.2.0 | TBD | UX geliştirmeleri |
-| v2.0.0 | TBD | Kurumsal özellikler |
+| v1.6.0 | TBD |Temel iyileştirmeler |
 
 ---
 
@@ -136,5 +146,5 @@ WinFileSearch/ ├── src/ │   ├── WinFileSearch.Data/          ✅ T
 ---
 
 <p align="center">
-  <sub>Son güncelleme: Mart 2026</sub>
+  <sub>Son güncelleme: Temmuz 2026</sub>
 </p>
